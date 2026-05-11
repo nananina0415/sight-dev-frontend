@@ -21,10 +21,12 @@ import BookListPage from "./pages/book";
 import BookMyPage from "./pages/member/book/my";
 import BookDetailPage from "./pages/book/detail";
 import BookManagePage from "./pages/manage/book";
+// QR/바코드 라이브러리가 용량이 커거 지연 로딩 적용
 const BookScanPage = lazy(() => import("./pages/member/book/scan"));
 const ManageAttendancePage = lazy(() => import("./pages/manage/attendance"));
 import AttendancePage from "./pages/member/attendance";
 import AttendanceResultPage from "./pages/member/attendance/result";
+import DoorLockPage from "./pages/door-lock";
 
 function App() {
   const router = createBrowserRouter(
@@ -76,6 +78,7 @@ function App() {
             </Suspense>
           }
         />
+        <Route path="/door-lock" element={<DoorLockPage />} />
       </Route>,
     ),
     {
