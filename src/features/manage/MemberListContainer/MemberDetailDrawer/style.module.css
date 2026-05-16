@@ -1,0 +1,139 @@
+.section {
+  margin-bottom: 24px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.info-label {
+  color: #999;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #333;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #666;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.close-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.drawer-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.drawer-body {
+  overflow-y: auto;
+}
+
+.drawer-footer {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.footer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.neutral-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.danger-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.neutral-button {
+  padding: 8px 16px;
+  font-size: 15px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.neutral-button:hover {
+  border-color: var(--main-color);
+  color: var(--main-color);
+}
+
+.danger-button {
+  padding: 8px 16px;
+  font-size: 15px;
+  width: 100%;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  background-color: white;
+  color: #e00000;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.danger-button:hover {
+  border-color: #e00000;
+  background-color: #fff1f0;
+}
+
+.separator {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 16px 0;
+}

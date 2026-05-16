@@ -1,0 +1,38 @@
+.discord-role-management {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.role-section {
+  padding: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 500;
+  color: #333;
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--main-color);
+}
+
+.info-text {
+  margin: 0;
+  color: #959595;
+  font-size: 0.9rem;
+}

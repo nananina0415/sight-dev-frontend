@@ -1,0 +1,30 @@
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  padding: 12px;
+  text-align: left;
+  color: #959595;
+  font-weight: 500;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+
+  .table td {
+    border-bottom: none;
+    padding: 2px 0;
+  }
+}

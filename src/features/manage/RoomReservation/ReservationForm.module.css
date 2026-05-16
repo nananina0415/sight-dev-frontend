@@ -1,0 +1,324 @@
+.reservation-form {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.reservation-form__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #00a0e9;
+}
+
+/* 폼 필드 */
+.form-field {
+  margin-bottom: 16px;
+}
+
+.form-field__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.form-field__required {
+  color: #e74c3c;
+  margin-left: 2px;
+}
+
+/* 분류 라디오 그룹 */
+.category-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-radio {
+  display: none;
+}
+
+.category-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #475569;
+  background: #fff;
+  user-select: none;
+}
+
+.category-label:hover {
+  border-color: #00a0e9;
+  background: #f0f9ff;
+}
+
+.category-label--selected {
+  color: #fff;
+  border-color: transparent;
+}
+
+/* 방 선택 라디오 그룹 */
+.room-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.room-radio {
+  display: none;
+}
+
+.room-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #475569;
+  background: #fff;
+  user-select: none;
+}
+
+.room-label:hover {
+  border-color: #00a0e9;
+  background: #f0f9ff;
+}
+
+.room-label--selected {
+  color: #fff;
+  background: #00a0e9;
+  border-color: #00a0e9;
+  font-weight: 600;
+}
+
+/* 선택된 방 표시 */
+.selected-room-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #e6f7ff;
+  border: 1px solid #00a0e9;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #005a8c;
+}
+
+.room-unavailable-warning {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+.no-room-hint {
+  font-size: 13px;
+  color: #94a3b8;
+  padding: 8px 0;
+}
+
+/* 인라인 캘린더 */
+.calendar {
+  width: 100%;
+}
+
+.calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.calendar__month-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.calendar__nav-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #475569;
+  transition: background 0.15s;
+}
+
+.calendar__nav-btn:hover {
+  background: #f1f5f9;
+}
+
+.calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.calendar__weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.calendar__weekday--sun {
+  color: #e74c3c;
+}
+
+.calendar__weekday--sat {
+  color: #3498db;
+}
+
+.calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar__day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #334155;
+  border: none;
+  background: none;
+}
+
+.calendar__day:hover {
+  background: #f1f5f9;
+}
+
+.calendar__day--other-month {
+  color: #cbd5e1;
+}
+
+.calendar__day--today {
+  font-weight: 700;
+  color: #00a0e9;
+}
+
+.calendar__day--selected {
+  background: #00a0e9;
+  color: #fff;
+  font-weight: 600;
+}
+
+.calendar__day--selected:hover {
+  background: #0077b6;
+}
+
+/* 시간 선택 */
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-select {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #334155;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+}
+
+.time-select:focus {
+  border-color: #00a0e9;
+}
+
+.time-separator {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* 텍스트 입력 */
+.text-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #334155;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.text-input:focus {
+  border-color: #00a0e9;
+}
+
+.textarea-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #334155;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.textarea-input:focus {
+  border-color: #00a0e9;
+}
+
+/* 제출 버튼 */
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: none;
+  background: #00a0e9;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+
+.submit-btn:hover {
+  background: #0077b6;
+}
+
+.submit-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
