@@ -19,7 +19,7 @@
 }
 
 .clock {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   color: #c0c0c0;
@@ -29,5 +29,5 @@
   flex: 1;
   overflow: auto;
   background-color: #f8f9fa;
-  padding-top: 8px;
+  padding: 8px 0 12px;
 }

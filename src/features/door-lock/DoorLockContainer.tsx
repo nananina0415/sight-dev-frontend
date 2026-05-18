@@ -32,6 +32,7 @@ const midnight = (() => {
 
 export default function DoorLockContainer() {
   const [input, setInput] = useState("");
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [now, setNow] = useState(new Date());
   const [currentSchedule, setCurrentSchedule] =
     useState<DoorLockSchedule | null>(null);
@@ -55,21 +56,26 @@ export default function DoorLockContainer() {
     if (key === "←") {
       setInput((prev) => prev.slice(0, -1));
     } else if (key === "↵") {
-      if (input.length !== 10) return;
+      if (input.length !== 10 || isAuthenticating) return;
+      setIsAuthenticating(true);
+      const toastId = toast.loading("인증 중...", { position: "top-center" });
       const result = await authenticate(input);
       setInput("");
+      setIsAuthenticating(false);
+      toast.dismiss(toastId);
+      const toastOptions = {
+        position: "top-center" as const,
+        autoClose: 1500,
+        hideProgressBar: true,
+      };
       if (result.success) {
-        toast.success("환영합니다.", {
-          position: "top-center",
-          autoClose: 500,
-          hideProgressBar: true,
-        });
+        toast.success("환영합니다.", toastOptions);
       } else {
-        toast.error("인증에 실패했습니다.", {
-          position: "top-center",
-          autoClose: 500,
-          hideProgressBar: true,
-        });
+        const message =
+          result.reason === "timeout" ? "서버 응답이 없습니다." :
+          result.reason === "network" ? "서버에 연결할 수 없습니다." :
+          "등록되지 않은 학번입니다.";
+        toast.error(message, toastOptions);
       }
     } else {
       setInput((prev) => (prev.length < 10 ? prev + key : prev));
@@ -133,23 +139,23 @@ export default function DoorLockContainer() {
       <Flex direction="column" flex="6" minH="0" overflow="hidden">
         <Box flex="2" minH="0" display="grid" placeItems="center" px={4}>
           <Box textAlign="center" w="100%">
-            <Box mb={6} color="gray.400">
-              <Text as="span" fontSize="lg" fontWeight="bold" mr={12}>
-                오늘 {status?.todayVisitorCount ?? "-"}명 방문
+            <Box mb={6} color="gray.500">
+              <Text as="span" fontSize="md" mr={8}>
+                오늘 <Text as="span" fontWeight="bold">{status?.todayVisitorCount ?? "-"}명</Text> 방문
               </Text>
-              <Text as="span" fontSize="lg" fontWeight="bold">
-                현재 {status?.currentRoomCount ?? "-"}명
+              <Text as="span" fontSize="md">
+                현재 <Text as="span" fontWeight="bold">{status?.currentRoomCount ?? "-"}명</Text>
               </Text>
             </Box>
             <Box
-              borderRadius="lg"
+              borderRadius="xl"
               bg="#ffffff"
               display="inline-block"
               p={5}
               px="20%"
+              mb={8}
               border="1px solid"
               borderColor="gray.200"
-              mb={8}
             >
               <chakra.input
                 readOnly
@@ -171,13 +177,13 @@ export default function DoorLockContainer() {
                 _placeholder={{
                   fontSize: "3xl",
                   letterSpacing: "normal",
-                  color: "brand.300",
+                  color: "gray.400",
                 }}
               />
             </Box>
           </Box>
         </Box>
-        <Flex flex="3" minH="0">
+        <Flex px={4} gap={3}>
           <Box flex="1" minH="0" overflow="hidden">
             <DoorLockScheduleCard
               label="현재 일정"
@@ -192,7 +198,7 @@ export default function DoorLockContainer() {
           </Box>
         </Flex>
       </Flex>
-      <Box flex="4">
+      <Box flex="4" pr={2}>
         <DoorLockKeypad onKey={handleKey} />
       </Box>
     </Flex>
