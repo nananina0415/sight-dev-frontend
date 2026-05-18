@@ -59,7 +59,7 @@ export default function DoorLockContainer() {
       const result = await authenticate(input);
       setInput("");
       if (result.success) {
-        toast.success(`${result.name}님 환영합니다.`, {
+        toast.success("환영합니다.", {
           position: "top-center",
           autoClose: 500,
           hideProgressBar: true,
@@ -78,19 +78,19 @@ export default function DoorLockContainer() {
 
   const currentScheduleCardData = currentSchedule
     ? {
-        category: currentSchedule.category,
+        category: currentSchedule.category ?? undefined,
         title: currentSchedule.title,
         timeLines: [
           {
             label: "경과",
             value: formatDuration(
-              now.getTime() - new Date(currentSchedule.startTime).getTime(),
+              now.getTime() - new Date(currentSchedule.scheduledAt).getTime(),
             ),
           },
           {
             label: "남음",
             value: formatDuration(
-              new Date(currentSchedule.endTime).getTime() - now.getTime(),
+              new Date(currentSchedule.endAt ?? midnight).getTime() - now.getTime(),
             ),
           },
         ] as [
@@ -105,8 +105,8 @@ export default function DoorLockContainer() {
           {
             label: "남음",
             value: formatDuration(
-              (nextSchedule && new Date(nextSchedule.startTime) > now
-                ? new Date(nextSchedule.startTime)
+              (nextSchedule && new Date(nextSchedule.scheduledAt) > now
+                ? new Date(nextSchedule.scheduledAt)
                 : midnight
               ).getTime() - now.getTime(),
             ),
@@ -116,11 +116,11 @@ export default function DoorLockContainer() {
 
   const nextScheduleCardData = nextSchedule
     ? {
-        category: nextSchedule.category,
+        category: nextSchedule.category ?? undefined,
         title: nextSchedule.title,
         timeLines: [
-          { label: "시작", value: formatTime(nextSchedule.startTime) },
-          { label: "종료", value: formatTime(nextSchedule.endTime) },
+          { label: "시작", value: formatTime(nextSchedule.scheduledAt) },
+          { label: "종료", value: nextSchedule.endAt ? formatTime(nextSchedule.endAt) : "-" },
         ] as [
           { label: string; value: string },
           { label: string; value: string },

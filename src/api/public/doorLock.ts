@@ -2,16 +2,18 @@ import apiV2Client from "../client/v2";
 import type { ScheduleCategory } from "../../components/ScheduleCategoryBadge";
 
 export type DoorLockSchedule = {
-  category: Exclude<ScheduleCategory, "일정없음">;
+  category: Exclude<ScheduleCategory, "일정없음"> | null;
   title: string;
-  startTime: string; // ISO 8601
-  endTime: string; // ISO 8601
+  scheduledAt: string; // ISO 8601
+  endAt: string | null; // ISO 8601
 };
 
 export type DoorLockStatus = {
   todayVisitorCount: number;
   currentRoomCount: number;
 };
+
+export type AuthResult = { success: true } | { success: false };
 
 export const getCurrentSchedule =
   async (): Promise<DoorLockSchedule | null> => {
@@ -21,8 +23,8 @@ export const getCurrentSchedule =
     return {
       category: "동아리",
       title: "정기 회의",
-      startTime: start.toISOString(),
-      endTime: end.toISOString(),
+      scheduledAt: start.toISOString(),
+      endAt: end.toISOString(),
     };
     // return null;
   };
@@ -34,8 +36,8 @@ export const getNextSchedule = async (): Promise<DoorLockSchedule | null> => {
   return {
     category: "세미나",
     title: "Git 입문 세미나",
-    startTime: start.toISOString(),
-    endTime: end.toISOString(),
+    scheduledAt: start.toISOString(),
+    endAt: end.toISOString(),
   };
   // return null;
 };
@@ -48,15 +50,15 @@ export const getDoorLockStatus = async (): Promise<DoorLockStatus> => {
   };
 };
 
-export type AuthResult =
-  | { success: true; name: string }
-  | { success: false };
-
 export const authenticate = async (studentId: string): Promise<AuthResult> => {
-  // TODO: 실제 API 연결 시 아래 목업을 교체
-  // const response = await apiV2Client.post<AuthResult>("/door-lock/verify", { studentId });
-  // return response.data;
-  void apiV2Client; // 실제 연결 전까지 lint 경고 방지
-  if (studentId === "0000000000") return { success: false };
-  return { success: true, name: "홍길동" };
+  try {
+    await apiV2Client.post(
+      "/internal/door-lock/accesses",
+      { studentId: Number(studentId) },
+      { headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY } },
+    );
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
 };
