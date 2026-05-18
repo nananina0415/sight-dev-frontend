@@ -36,11 +36,11 @@ export default function ScheduleCategoryBadge({ category }: Props) {
     <chakra.span
       display="inline-block"
       alignSelf="flex-start"
-      px={2}
-      py="2px"
+      px="6px"
+      py="1px"
       borderRadius="full"
-      fontSize="sm"
-      fontWeight="bold"
+      fontSize="xs"
+      fontWeight="semibold"
       alignContent="center"
       style={{ backgroundColor: bg, color, border }}
       whiteSpace="nowrap"

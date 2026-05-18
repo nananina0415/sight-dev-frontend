@@ -17,94 +17,82 @@ type Props = {
 };
 
 export default function DoorLockScheduleCard({ label, schedule }: Props) {
-  const hasTitleBox =
-    schedule && (schedule.category != null || schedule.title != null);
   const timeLines = schedule?.timeLines ?? [];
 
   return (
     <Box
       w="100%"
-      h="100%"
       display="flex"
       flexDirection="column"
+      bg="white"
+      borderRadius="xl"
+      border="1px solid"
+      borderColor="gray.200"
+      px={5}
+      py={2}
+      gap={2}
       overflow="hidden"
     >
-      <Text textAlign="center" fontWeight="bold" fontSize="xl" color="gray.500">
+      <Text
+        fontWeight="semibold"
+        fontSize="xs"
+        color="gray.400"
+        letterSpacing="widest"
+        textAlign="right"
+      >
         {label}
       </Text>
 
-      <Flex
-        flex="1"
-        direction="column"
-        justify="space-around"
-        align="center"
-        gap={3}
-        py={3}
-      >
+      <Box overflow="hidden">
         {!schedule ? (
           <ScheduleCategoryBadge category="일정없음" />
         ) : (
           <>
-            {hasTitleBox && (
-              <Flex
-                flex="2"
-                minH="0"
-                w="90%"
-                overflow="hidden"
-                bg="#00000000"
-                p={5}
-                py={3}
-                direction="column"
-                justify="space-around"
-                borderRadius="md"
-                border="1px solid"
-                borderColor="gray.200"
-              >
-                {schedule.category && (
-                  <ScheduleCategoryBadge category={schedule.category} />
-                )}
-                {schedule.title && (
-                  <Text
-                    fontWeight="bold"
-                    fontSize="xl"
-                    overflow="hidden"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
-                    {schedule.title}
-                  </Text>
-                )}
-              </Flex>
+            {schedule.category && (
+              <Box mb={2}>
+                <ScheduleCategoryBadge category={schedule.category} />
+              </Box>
             )}
-
-            {timeLines.map((line, i) => (
-              <Flex
-                key={i}
-                flex="1"
-                minH="0"
-                w="90%"
-                bg="#ffffff00"
-                alignItems="center"
-                justifyContent="space-between"
-                px={5}
-                borderRadius="md"
-                border="1px solid"
-                borderColor="gray.200"
+            {schedule.title && (
+              <Text
+                fontWeight="semibold"
+                fontSize="lg"
+                overflow="hidden"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                }}
               >
-                <Text fontWeight="bold" fontSize="lg" color="gray.500">
-                  {line.label}
-                </Text>
-                <Text fontWeight="bold" fontSize="lg">
-                  {line.value}
-                </Text>
-              </Flex>
-            ))}
+                {schedule.title}
+              </Text>
+            )}
           </>
         )}
-      </Flex>
+      </Box>
+
+      {timeLines.length > 0 && (
+        <Flex direction="column" gap={2}>
+          {timeLines.map((line, i) => (
+            <Flex
+              key={i}
+              bg="gray.50"
+              alignItems="center"
+              justifyContent="space-between"
+              px={4}
+              py={2}
+              borderRadius="md"
+            >
+              <Text fontWeight="medium" fontSize="sm" color="gray.400">
+                {line.label}
+              </Text>
+              <Text fontWeight="semibold" fontSize="sm">
+                {line.value}
+              </Text>
+            </Flex>
+          ))}
+        </Flex>
+      )}
     </Box>
   );
 }
