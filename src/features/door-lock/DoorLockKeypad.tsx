@@ -16,6 +16,9 @@ export default function DoorLockKeypad({ onKey }: Props) {
       p={4}
       gap={4}
       placeItems="center"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="xl"
     >
       {KEYS.map((key) =>
         key === "↵" ? (
