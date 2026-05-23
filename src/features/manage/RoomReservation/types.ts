@@ -1,10 +1,8 @@
-/** 예약 분류 */
+/** 예약 분류 (그룹활동 제외) */
 export const ReservationCategory = {
-  CLUB: "CLUB",             // 동아리
-  ACADEMIC: "ACADEMIC",      // 학사
-  EXTERNAL: "EXTERNAL",      // 외부
-  ROOM_405: "ROOM_405",      // 405호
-  ROOM_410: "ROOM_410",      // 410호
+  CLUB: "CLUB",         // 동아리
+  ACADEMIC: "ACADEMIC",  // 학사
+  EXTERNAL: "EXTERNAL",  // 외부
 } as const;
 export type ReservationCategory =
   (typeof ReservationCategory)[keyof typeof ReservationCategory];
@@ -13,22 +11,12 @@ export const ReservationCategoryLabel: Record<ReservationCategory, string> = {
   [ReservationCategory.CLUB]: "동아리",
   [ReservationCategory.ACADEMIC]: "학사",
   [ReservationCategory.EXTERNAL]: "외부",
-  [ReservationCategory.ROOM_405]: "405호",
-  [ReservationCategory.ROOM_410]: "410호",
 };
 
 export const ReservationCategoryColor: Record<ReservationCategory, string> = {
   [ReservationCategory.CLUB]: "#00a0e9",
   [ReservationCategory.ACADEMIC]: "#2ecc71",
   [ReservationCategory.EXTERNAL]: "#e67e22",
-  [ReservationCategory.ROOM_405]: "#8b5cf6",
-  [ReservationCategory.ROOM_410]: "#ec4899",
-};
-
-/** 카테고리 → location 매핑 (405호, 410호만 location 있음) */
-export const CategoryLocationMap: Partial<Record<ReservationCategory, string>> = {
-  [ReservationCategory.ROOM_405]: "405",
-  [ReservationCategory.ROOM_410]: "410",
 };
 
 /** 방 정보 */
@@ -38,7 +26,7 @@ export type Room = {
   description: string;
   capacity: number;
   /** SVG 약도 위치 (비율 기반) */
-  position: {
+  position?: {
     x: number;
     y: number;
     width: number;
@@ -46,8 +34,8 @@ export type Room = {
   };
   /** 일정 등록 가능 여부 */
   isSelectable: boolean;
-  /** 방 상태: available(일정 가능) | restricted(출입금지) | under-construction(공사중) */
-  status: "available" | "restricted" | "under-construction";
+  /** 방 상태: available(일정 가능) | restricted(출입금지) | under_construction(공사중) */
+  status: "available" | "restricted" | "under_construction";
 };
 
 /** 일정 */

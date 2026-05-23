@@ -1,10 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import dayjs from "dayjs";
-
 import * as RoomReservationApi from "../../../api/manage/roomReservation";
 import type { Room, Schedule } from "../RoomReservation/types";
-import { ROOMS } from "../RoomReservation/roomData";
 import FloorPlan from "../RoomReservation/FloorPlan";
 import RoomInfoPanel from "../RoomReservation/RoomInfoPanel";
 import ScheduleDetailModal from "../RoomReservation/ScheduleDetailModal";

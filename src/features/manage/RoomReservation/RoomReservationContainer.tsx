@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 
 import * as RoomReservationApi from "../../../api/manage/roomReservation";
 import type { CreateScheduleRequest } from "./types";
-import { CategoryLocationMap } from "./types";
 import ReservationForm from "./ReservationForm";
 import styles from "./RoomReservationContainer.module.css";
 
@@ -15,8 +14,8 @@ type Props = {
 };
 
 export default function RoomReservationContainer({
-  pageTitle = "일정 등록",
-  pageSubtitle = "분류를 선택하고 일정을 등록할 수 있습니다.",
+  pageTitle = "동아리실 일정 관리",
+  pageSubtitle = "일정 및 대관 내역을 등록할 수 있습니다.",
 }: Props) {
   const queryClient = useQueryClient();
 
@@ -37,6 +36,7 @@ export default function RoomReservationContainer({
   const handleSubmit = useCallback(
     (data: {
       category: string;
+      roomId: string;
       date: string;
       startTime: string;
       endTime: string;
@@ -53,16 +53,12 @@ export default function RoomReservationContainer({
         "YYYY-MM-DD HH:mm",
       ).toISOString();
 
-      // 카테고리에서 location 매핑 (405호, 410호인 경우)
-      const location =
-        CategoryLocationMap[data.category as keyof typeof CategoryLocationMap] ?? "";
-
       createMutation.mutate({
-        location,
+        location: data.roomId, // roomId → location
         title: data.title,
-        category: data.category,
-        scheduledAt,
-        endAt,
+        category: data.category, // string 타입으로 유지
+        scheduledAt, // ISO 8601
+        endAt, // ISO 8601
       });
     },
     [createMutation],
@@ -75,7 +71,7 @@ export default function RoomReservationContainer({
         <p className={styles["page-subtitle"]}>{pageSubtitle}</p>
       </div>
 
-      <div className={styles["form-wrapper"]}>
+      <div className={styles["full-width-wrapper"]}>
         <ReservationForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending}

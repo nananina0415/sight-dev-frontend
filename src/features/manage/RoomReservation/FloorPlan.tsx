@@ -1,3 +1,4 @@
+import type React from "react";
 import { ROOMS } from "./roomData";
 import type { Room } from "./types";
 import styles from "./FloorPlan.module.css";
@@ -8,144 +9,133 @@ type Props = {
 };
 
 export default function FloorPlan({ selectedRoomId, onSelectRoom }: Props) {
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "restricted":
-        return "출입금지";
-      case "under-construction":
-        return "공사중";
-      default:
-        return "";
+  // 좌측 라인 (위에서 아래로: 407, 408, 409, 410, 411)
+  const leftRooms = ROOMS.filter((r) =>
+    ["407", "408", "409", "410", "411"].includes(r.id)
+  );
+
+  // 우측 라인 (위에서 아래로: 407-1, 405, 403, 404, 402, 401)
+  const rightRooms = ROOMS.filter((r) =>
+    ["407-1", "405", "403", "404", "402", "401"].includes(r.id)
+  );
+
+  const handleRoomClick = (room: Room, e: React.MouseEvent) => {
+    if (!room.isSelectable) {
+      e.preventDefault();
+      return;
     }
+    onSelectRoom(room);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "restricted":
-        return "#ef4444"; // 빨강
-      case "under-construction":
-        return "#f59e0b"; // 주황
-      default:
-        return "#e0f2fe"; // 파랑
+  const getRoomClass = (room: Room) => {
+    const classes = [styles["room-box"]];
+    const isSelected = selectedRoomId === room.id;
+
+    if (room.isSelectable) {
+      classes.push(styles["room-box__selectable"]);
     }
+
+    if (isSelected) {
+      classes.push(styles["room-box__selected"]);
+    } else {
+      if (room.status === "available") {
+        classes.push(styles["room-box__available"]);
+      } else if (room.status === "restricted") {
+        if (room.id === "409") {
+          classes.push(styles["room-box__restricted-server"]);
+        } else {
+          classes.push(styles["room-box__restricted"]);
+        }
+      } else if (room.status === "under_construction") {
+        classes.push(styles["room-box__under_construction"]);
+      }
+    }
+
+    return classes.join(" ");
   };
 
   return (
     <div className={styles["floorplan-wrapper"]}>
       <div className={styles["floorplan-title"]}>🏢 학생회관 4층 약도</div>
-      <svg
-        viewBox="0 0 600 400"
-        className={styles["floorplan-svg"]}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* 건물 외벽 */}
-        <rect
-          x="10"
-          y="10"
-          width="580"
-          height="380"
-          rx="6"
-          fill="none"
-          stroke="#94a3b8"
-          strokeWidth="2"
-          strokeDasharray="6 3"
-        />
-
-        {/* 중앙 복도 (세로) */}
-        <rect
-          x={280}
-          y={10}
-          width={40}
-          height={380}
-          fill="#f8fafc"
-          stroke="#e2e8f0"
-          strokeWidth={1}
-        />
-        <text
-          x={300}
-          y={30}
-          textAnchor="middle"
-          className={styles["corridor-label"]}
-        >
-          복 도
-        </text>
-
-        {/* 방 렌더링 */}
-        {ROOMS.map((room) => {
-          const isSelected = selectedRoomId === room.id;
-          const isSelectable = room.isSelectable;
-          const { x, y, width, height } = room.position;
-          const centerX = x + width / 2;
-          const centerY = y + height / 2;
-          const statusLabel = getStatusLabel(room.status);
-          const bgColor = getStatusColor(room.status);
-
-          return (
-            <g
+      <div className={styles["floorplan-grid"]}>
+        {/* 좌측 라인 */}
+        <div className={styles["room-column"]}>
+          {leftRooms.map((room) => (
+            <div
               key={room.id}
-              onClick={() => {
-                if (isSelectable) onSelectRoom(room);
-              }}
-              onKeyDown={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && isSelectable) {
-                  onSelectRoom(room);
-                }
-              }}
+              className={getRoomClass(room)}
+              onClick={(e) => handleRoomClick(room, e)}
               role="button"
-              tabIndex={isSelectable ? 0 : -1}
-              aria-label={`${room.name} ${statusLabel} (${room.capacity}명)`}
-              style={{ cursor: isSelectable ? "pointer" : "not-allowed" }}
+              tabIndex={room.isSelectable ? 0 : -1}
+              aria-label={room.name}
+              title={
+                room.id === "409"
+                  ? "서버실 (출입 통제 구역 - 일반 예약 불가)"
+                  : room.status === "under_construction"
+                  ? "공사 중 (현재 이용 불가)"
+                  : room.isSelectable
+                  ? `${room.name} (예약 가능)`
+                  : `${room.name} (예약 불가)`
+              }
             >
-              <rect
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                rx="6"
-                fill={bgColor}
-                stroke={isSelected ? "#0077b6" : "#cbd5e1"}
-                strokeWidth={isSelected ? 3 : 1}
-                opacity={isSelectable ? 1 : 0.6}
-              />
-              <text
-                x={centerX}
-                y={centerY - 8}
-                textAnchor="middle"
-                dominantBaseline="central"
-                className={styles["room-label"]}
-                fill={isSelected ? "#0077b6" : "#475569"}
-                fontWeight={isSelected ? "bold" : "normal"}
-              >
-                {room.name}
-              </text>
-              {statusLabel && (
-                <text
-                  x={centerX}
-                  y={centerY + 8}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fontSize="10"
-                  fill={room.status === "restricted" ? "#dc2626" : "#d97706"}
-                  fontWeight="bold"
-                >
-                  {statusLabel}
-                </text>
+              <div className={styles["room-name"]}>{room.name}</div>
+              {room.status === "restricted" && room.id === "409" && (
+                <span className={`${styles["room-status-badge"]} ${styles["badge__restricted"]}`}>
+                  출입 통제
+                </span>
               )}
-              {isSelectable && room.capacity > 0 && (
-                <text
-                  x={centerX}
-                  y={centerY + 24}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  className={styles["capacity-badge"]}
-                >
+              {room.status === "under_construction" && (
+                <span className={`${styles["room-status-badge"]} ${styles["badge__under_construction"]}`}>
+                  공사 중
+                </span>
+              )}
+              {room.status === "available" && room.capacity > 0 && (
+                <span className={styles["room-capacity"]}>
                   👤 {room.capacity}명
-                </text>
+                </span>
               )}
-            </g>
-          );
-        })}
-      </svg>
+            </div>
+          ))}
+        </div>
+
+        {/* 중앙 복도 */}
+        <div className={styles["corridor"]}>
+          <div className={styles["corridor-text"]}>복도</div>
+        </div>
+
+        {/* 우측 라인 */}
+        <div className={styles["room-column"]}>
+          {rightRooms.map((room) => (
+            <div
+              key={room.id}
+              className={getRoomClass(room)}
+              onClick={(e) => handleRoomClick(room, e)}
+              role="button"
+              tabIndex={room.isSelectable ? 0 : -1}
+              aria-label={room.name}
+              title={
+                room.status === "under_construction"
+                  ? "공사 중 (현재 이용 불가)"
+                  : room.isSelectable
+                  ? `${room.name} (예약 가능)`
+                  : `${room.name} (예약 불가)`
+              }
+            >
+              <div className={styles["room-name"]}>{room.name}</div>
+              {room.status === "under_construction" && (
+                <span className={`${styles["room-status-badge"]} ${styles["badge__under_construction"]}`}>
+                  공사 중
+                </span>
+              )}
+              {room.status === "available" && room.capacity > 0 && (
+                <span className={styles["room-capacity"]}>
+                  👤 {room.capacity}명
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
