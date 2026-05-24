@@ -8,6 +8,7 @@ import {
   getNextSchedule,
   getDoorLockStatus,
   authenticate,
+  syncMembers,
   type DoorLockSchedule,
   type DoorLockStatus,
 } from "../../api/public/doorLock";
@@ -42,7 +43,16 @@ export default function DoorLockContainer() {
   const [status, setStatus] = useState<DoorLockStatus | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 10000);
+    let lastDate = new Date().toISOString().slice(0, 10);
+    const id = setInterval(() => {
+      const next = new Date();
+      const nextDate = next.toISOString().slice(0, 10);
+      if (nextDate !== lastDate) {
+        lastDate = nextDate;
+        syncMembers();
+      }
+      setNow(next);
+    }, 10000);
     return () => clearInterval(id);
   }, []);
 
@@ -50,6 +60,7 @@ export default function DoorLockContainer() {
     getCurrentSchedule().then(setCurrentSchedule);
     getNextSchedule().then(setNextSchedule);
     getDoorLockStatus().then(setStatus);
+    syncMembers();
   }, []);
 
   const handleKey = async (key: string) => {
@@ -69,7 +80,8 @@ export default function DoorLockContainer() {
         hideProgressBar: true,
       };
       if (result.success) {
-        toast.success("환영합니다.", toastOptions);
+        const welcome = result.name ? `${result.name}님 환영합니다.` : "환영합니다.";
+        toast.success(welcome, toastOptions);
       } else {
         const message =
           result.reason === "timeout" ? "서버 응답이 없습니다." :
