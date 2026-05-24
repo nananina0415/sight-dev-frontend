@@ -2,8 +2,8 @@ import { Dialog, Portal } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import type { Schedule } from "./types";
 import {
-  ReservationCategoryLabel,
-  ReservationCategoryColor,
+  getReservationCategoryLabel,
+  getReservationCategoryColor,
 } from "./types";
 
 type Props = {
@@ -60,11 +60,12 @@ export default function ScheduleDetailModal({
                       fontSize: "12px",
                       fontWeight: "600",
                       color: "#fff",
-                      backgroundColor:
-                        ReservationCategoryColor[schedule.category] || "#00a0e9",
+                      backgroundColor: getReservationCategoryColor(
+                        schedule.category,
+                      ),
                     }}
                   >
-                    {ReservationCategoryLabel[schedule.category] || schedule.category}
+                    {getReservationCategoryLabel(schedule.category)}
                   </span>
                 </div>
 

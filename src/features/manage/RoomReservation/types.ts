@@ -19,6 +19,21 @@ export const ReservationCategoryColor: Record<ReservationCategory, string> = {
   [ReservationCategory.EXTERNAL]: "#e67e22",
 };
 
+const isReservationCategory = (value: string): value is ReservationCategory =>
+  Object.values(ReservationCategory).includes(value as ReservationCategory);
+
+export function getReservationCategoryLabel(category: string): string {
+  return isReservationCategory(category)
+    ? ReservationCategoryLabel[category]
+    : category;
+}
+
+export function getReservationCategoryColor(category: string): string {
+  return isReservationCategory(category)
+    ? ReservationCategoryColor[category]
+    : "#00a0e9";
+}
+
 /** 방 정보 */
 export type Room = {
   id: string;

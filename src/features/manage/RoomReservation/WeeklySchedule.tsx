@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import dayjs from "dayjs";
 import type { Schedule } from "./types";
-import { ReservationCategoryColor } from "./types";
+import { getReservationCategoryColor } from "./types";
 import styles from "./WeeklySchedule.module.css";
 
 type Props = {
@@ -111,8 +111,9 @@ export default function WeeklySchedule({
                       key={schedule.id}
                       className={styles["schedule-block"]}
                       style={{
-                        backgroundColor:
-                          ReservationCategoryColor[schedule.category] || "#00a0e9",
+                        backgroundColor: getReservationCategoryColor(
+                          schedule.category,
+                        ),
                       }}
                       onClick={() => onScheduleClick(schedule)}
                       role="button"
