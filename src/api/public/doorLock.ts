@@ -14,7 +14,7 @@ export type DoorLockStatus = {
 };
 
 export type AuthResult =
-  | { success: true }
+  | { success: true; name: string }
   | { success: false; reason: "unauthorized" | "timeout" | "network" | "signal_failed" };
 
 type RawSchedule = {
@@ -111,6 +111,42 @@ export const getDoorLockStatus = async (): Promise<DoorLockStatus> => {
   };
 };
 
+const MEMBERS_KEY = "door_lock_members";
+const MEMBERS_DATE_KEY = "door_lock_members_date";
+
+export const syncMembers = async (): Promise<void> => {
+  const today = todayString();
+  if (localStorage.getItem(MEMBERS_DATE_KEY) === today) return;
+  try {
+    const resp = await apiV2Client.get<{ members: { studentId: number; name: string }[] }>(
+      "/internal/door-lock/members",
+      { headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY } },
+    );
+    const map: Record<string, string> = {};
+    for (const m of resp.data.members) map[String(m.studentId)] = m.name;
+    localStorage.setItem(MEMBERS_KEY, JSON.stringify(map));
+    localStorage.setItem(MEMBERS_DATE_KEY, today);
+  } catch {
+    // 실패해도 기존 캐시 유지
+  }
+};
+
+const lookupLocal = (studentId: string): { found: boolean; name: string } => {
+  const raw = localStorage.getItem(MEMBERS_KEY);
+  if (!raw) return { found: false, name: "" };
+  const map = JSON.parse(raw) as Record<string, string>;
+  if (!(studentId in map)) return { found: false, name: "" };
+  return { found: true, name: map[studentId] };
+};
+
+const localFallback = (
+  studentId: string,
+  reason: Exclude<AuthResult, { success: true }>["reason"],
+): AuthResult => {
+  const local = lookupLocal(studentId);
+  return local.found ? { success: true, name: local.name } : { success: false, reason };
+};
+
 export const authenticate = async (studentId: string): Promise<AuthResult> => {
   try {
     const resp = await fetch("http://localhost:8080/unlock", {
@@ -119,13 +155,18 @@ export const authenticate = async (studentId: string): Promise<AuthResult> => {
       body: JSON.stringify({ studentId: studentId }),
     });
 
-    if (resp.ok) return { success: true };
+    if (resp.ok) {
+      const data = await resp.json().catch(() => ({})) as { name?: string };
+      return { success: true, name: data.name ?? "" };
+    }
 
     const data = await resp.json().catch(() => ({})) as { message?: string };
-    if (resp.status === 504 || data.message === "timeout") return { success: false, reason: "timeout" };
-    if (resp.status === 502 || data.message === "network") return { success: false, reason: "network" };
+    if (resp.status === 504 || data.message === "timeout")
+      return localFallback(studentId, "timeout");
+    if (resp.status === 502 || data.message === "network")
+      return localFallback(studentId, "network");
     return { success: false, reason: "unauthorized" };
   } catch {
-    return { success: false, reason: "signal_failed" };
+    return localFallback(studentId, "signal_failed");
   }
 };
