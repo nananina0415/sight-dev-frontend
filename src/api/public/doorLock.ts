@@ -116,7 +116,7 @@ export const authenticate = async (studentId: string): Promise<AuthResult> => {
     const resp = await fetch("http://localhost:8080/unlock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId: Number(studentId) }),
+      body: JSON.stringify({ studentId: studentId }),
     });
 
     if (resp.ok) return { success: true };
