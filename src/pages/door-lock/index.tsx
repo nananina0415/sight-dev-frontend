@@ -1,10 +1,6 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import DoorLockContainer from "../../features/door-lock/DoorLockContainer";
 import styles from "./style.module.css";
-
-type Props = {
-  headerRight?: ReactNode;
-};
 
 function Clock() {
   const [now, setNow] = useState(new Date());
@@ -21,7 +17,7 @@ function Clock() {
   );
 }
 
-export default function DoorLockPage({ headerRight }: Props) {
+export default function DoorLockPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -31,7 +27,6 @@ export default function DoorLockPage({ headerRight }: Props) {
           className={styles.logo}
         />
         <Clock />
-        {headerRight && <div>{headerRight}</div>}
       </header>
       <main className={styles.main}>
         <DoorLockContainer />
