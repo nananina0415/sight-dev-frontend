@@ -1,4 +1,3 @@
-import axios from "axios";
 import apiV2Client from "../client/v2";
 import type { ScheduleCategory } from "../../components/ScheduleCategoryBadge";
 
@@ -16,7 +15,7 @@ export type DoorLockStatus = {
 
 export type AuthResult =
   | { success: true }
-  | { success: false; reason: "unauthorized" | "timeout" | "network" };
+  | { success: false; reason: "unauthorized" | "timeout" | "network" | "signal_failed" };
 
 type RawSchedule = {
   title: string;
@@ -114,20 +113,19 @@ export const getDoorLockStatus = async (): Promise<DoorLockStatus> => {
 
 export const authenticate = async (studentId: string): Promise<AuthResult> => {
   try {
-    await apiV2Client.post(
-      "/internal/door-lock/accesses",
-      { studentId: Number(studentId) },
-      {
-        headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY },
-        timeout: 5000,
-      },
-    );
-    return { success: true };
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      if (e.code === "ECONNABORTED") return { success: false, reason: "timeout" };
-      if (e.response) return { success: false, reason: "unauthorized" };
-    }
-    return { success: false, reason: "network" };
+    const resp = await fetch("http://localhost:8080/unlock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId: Number(studentId) }),
+    });
+
+    if (resp.ok) return { success: true };
+
+    const data = await resp.json().catch(() => ({})) as { message?: string };
+    if (resp.status === 504 || data.message === "timeout") return { success: false, reason: "timeout" };
+    if (resp.status === 502 || data.message === "network") return { success: false, reason: "network" };
+    return { success: false, reason: "unauthorized" };
+  } catch {
+    return { success: false, reason: "signal_failed" };
   }
 };
