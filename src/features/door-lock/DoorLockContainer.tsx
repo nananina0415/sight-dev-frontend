@@ -9,6 +9,7 @@ import {
   getDoorLockStatus,
   authenticate,
   syncMembers,
+  getMembersDate,
   type DoorLockSchedule,
   type DoorLockStatus,
 } from "../../api/public/doorLock";
@@ -41,8 +42,15 @@ export default function DoorLockContainer() {
     null,
   );
   const [status, setStatus] = useState<DoorLockStatus | null>(null);
+  const [isServerOnline, setIsServerOnline] = useState(true);
 
   useEffect(() => {
+    const checkHealth = () =>
+      fetch("http://localhost:8080/health")
+        .then((r) => setIsServerOnline(r.ok))
+        .catch(() => setIsServerOnline(false));
+
+    checkHealth();
     let lastDate = new Date().toISOString().slice(0, 10);
     const id = setInterval(() => {
       const next = new Date();
@@ -52,6 +60,9 @@ export default function DoorLockContainer() {
         syncMembers();
       }
       setNow(next);
+      checkHealth();
+      getCurrentSchedule().then(setCurrentSchedule);
+      getNextSchedule().then(setNextSchedule);
     }, 10000);
     return () => clearInterval(id);
   }, []);
@@ -80,15 +91,26 @@ export default function DoorLockContainer() {
         hideProgressBar: true,
       };
       if (result.success) {
-        const welcome = result.name ? `${result.name}님 환영합니다.` : "환영합니다.";
+        const welcome = result.name
+          ? `${result.name}님 환영합니다.`
+          : "환영합니다.";
         toast.success(welcome, toastOptions);
       } else {
         const message =
-          result.reason === "timeout" ? "서버 응답이 없습니다." :
-          result.reason === "network" ? "서버에 연결할 수 없습니다." :
-          result.reason === "signal_failed" ? "도어락 신호 전송에 실패했습니다." :
-          "등록되지 않은 학번입니다.";
+          result.reason === "timeout"
+            ? "서버 응답이 없습니다."
+            : result.reason === "network"
+              ? "서버에 연결할 수 없습니다."
+              : result.reason === "signal_failed"
+                ? "도어락 신호 전송에 실패했습니다."
+                : "등록되지 않은 학번입니다.";
         toast.error(message, toastOptions);
+        if ("localNotFound" in result && result.localNotFound) {
+          toast.error(
+            "해당 회원을 로컬 DB에서 찾을 수 없습니다.",
+            toastOptions,
+          );
+        }
       }
     } else {
       setInput((prev) => (prev.length < 10 ? prev + key : prev));
@@ -100,18 +122,8 @@ export default function DoorLockContainer() {
         category: currentSchedule.category ?? undefined,
         title: currentSchedule.title,
         timeLines: [
-          {
-            label: "경과",
-            value: formatDuration(
-              now.getTime() - new Date(currentSchedule.scheduledAt).getTime(),
-            ),
-          },
-          {
-            label: "남음",
-            value: formatDuration(
-              new Date(currentSchedule.endAt ?? midnight).getTime() - now.getTime(),
-            ),
-          },
+          { label: "시작", value: formatTime(currentSchedule.scheduledAt) },
+          { label: "종료", value: currentSchedule.endAt ? formatTime(currentSchedule.endAt) : "-" },
         ] as [
           { label: string; value: string },
           { label: string; value: string },
@@ -139,7 +151,10 @@ export default function DoorLockContainer() {
         title: nextSchedule.title,
         timeLines: [
           { label: "시작", value: formatTime(nextSchedule.scheduledAt) },
-          { label: "종료", value: nextSchedule.endAt ? formatTime(nextSchedule.endAt) : "-" },
+          {
+            label: "종료",
+            value: nextSchedule.endAt ? formatTime(nextSchedule.endAt) : "-",
+          },
         ] as [
           { label: string; value: string },
           { label: string; value: string },
@@ -150,15 +165,34 @@ export default function DoorLockContainer() {
   return (
     <Flex h="100%">
       <Flex direction="column" flex="6" minH="0" overflow="hidden">
-        <Box flex="2" minH="0" display="grid" placeItems="center" px={4}>
+        <Box flex="1" minH="0" display="grid" placeItems="center" px={4}>
           <Box textAlign="center" w="100%">
-            <Box mb={6} color="gray.500">
-              <Text as="span" fontSize="md" mr={8}>
-                오늘 <Text as="span" fontWeight="bold">{status?.todayVisitorCount ?? "-"}명</Text> 방문
-              </Text>
-              <Text as="span" fontSize="md">
-                현재 <Text as="span" fontWeight="bold">{status?.currentRoomCount ?? "-"}명</Text>
-              </Text>
+            <Box mb={4}>
+              {isServerOnline ? (
+                <Box color="gray.500">
+                  <Text as="span" fontSize="md" mr={8}>
+                    오늘{" "}
+                    <Text as="span" fontWeight="bold">
+                      {status?.todayVisitorCount ?? "-"}명
+                    </Text>{" "}
+                    방문
+                  </Text>
+                  <Text as="span" fontSize="md">
+                    현재{" "}
+                    <Text as="span" fontWeight="bold">
+                      {status?.currentRoomCount ?? "-"}명
+                    </Text>
+                  </Text>
+                </Box>
+              ) : (
+                <Box color="red.500" fontSize="sm" fontWeight="medium">
+                  <strong>서버에 연결되어 있지 않습니다.</strong>
+                  <br />
+                  <strong>
+                    {getMembersDate() ?? "날짜 없음"} 로컬 DB를 사용합니다.
+                  </strong>
+                </Box>
+              )}
             </Box>
             <Box
               borderRadius="xl"
@@ -166,7 +200,7 @@ export default function DoorLockContainer() {
               display="inline-block"
               p={5}
               px="20%"
-              mb={8}
+              mb={4}
               border="1px solid"
               borderColor="gray.200"
             >
@@ -196,7 +230,7 @@ export default function DoorLockContainer() {
             </Box>
           </Box>
         </Box>
-        <Flex px={4} gap={3}>
+        <Flex flex="1" px={4} gap={3}>
           <Box flex="1" minH="0" overflow="hidden">
             <DoorLockScheduleCard
               label="현재 일정"

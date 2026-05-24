@@ -15,7 +15,8 @@ export type DoorLockStatus = {
 
 export type AuthResult =
   | { success: true; name: string }
-  | { success: false; reason: "unauthorized" | "timeout" | "network" | "signal_failed" };
+  | { success: false; reason: "unauthorized" }
+  | { success: false; reason: "timeout" | "network" | "signal_failed"; localNotFound: boolean };
 
 type RawSchedule = {
   title: string;
@@ -41,8 +42,14 @@ const readCache = (): RawSchedule[] | null => {
   const raw = localStorage.getItem(CACHE_KEY);
   if (!raw) return null;
   const cache: ScheduleCache = JSON.parse(raw);
-  if (cache.date !== todayString() || Date.now() - cache.fetchedAt >= CACHE_TTL_MS) return null;
-  return cache.schedules;
+  return cache.date === todayString() ? cache.schedules : null;
+};
+
+const isCacheStale = (): boolean => {
+  const raw = localStorage.getItem(CACHE_KEY);
+  if (!raw) return true;
+  const cache: ScheduleCache = JSON.parse(raw);
+  return cache.date !== todayString() || Date.now() - cache.fetchedAt >= CACHE_TTL_MS;
 };
 
 export const fetchAndCacheSchedules = (): Promise<void> => {
@@ -78,9 +85,9 @@ const toSchedule = (s: RawSchedule): DoorLockSchedule => ({
 });
 
 const ensureCache = async (): Promise<RawSchedule[]> => {
-  const cached = readCache();
-  if (cached) return cached;
-  await fetchAndCacheSchedules();
+  if (isCacheStale()) {
+    await fetchAndCacheSchedules().catch(() => {});
+  }
   return readCache() ?? [];
 };
 
@@ -114,6 +121,9 @@ export const getDoorLockStatus = async (): Promise<DoorLockStatus> => {
 const MEMBERS_KEY = "door_lock_members";
 const MEMBERS_DATE_KEY = "door_lock_members_date";
 
+export const getMembersDate = (): string | null =>
+  localStorage.getItem(MEMBERS_DATE_KEY);
+
 export const syncMembers = async (): Promise<void> => {
   const today = todayString();
   if (localStorage.getItem(MEMBERS_DATE_KEY) === today) return;
@@ -127,7 +137,11 @@ export const syncMembers = async (): Promise<void> => {
     localStorage.setItem(MEMBERS_KEY, JSON.stringify(map));
     localStorage.setItem(MEMBERS_DATE_KEY, today);
   } catch {
-    // 실패해도 기존 캐시 유지
+    if (!localStorage.getItem(MEMBERS_KEY)) {
+      // TODO: 백엔드 API 구현 후 제거
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify({ "1111111111": "김김김" }));
+      localStorage.setItem(MEMBERS_DATE_KEY, today);
+    }
   }
 };
 
@@ -141,10 +155,12 @@ const lookupLocal = (studentId: string): { found: boolean; name: string } => {
 
 const localFallback = (
   studentId: string,
-  reason: Exclude<AuthResult, { success: true }>["reason"],
+  reason: "timeout" | "network" | "signal_failed",
 ): AuthResult => {
   const local = lookupLocal(studentId);
-  return local.found ? { success: true, name: local.name } : { success: false, reason };
+  return local.found
+    ? { success: true, name: local.name }
+    : { success: false, reason, localNotFound: true };
 };
 
 export const authenticate = async (studentId: string): Promise<AuthResult> => {

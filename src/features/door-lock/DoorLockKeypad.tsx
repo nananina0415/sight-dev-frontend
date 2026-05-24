@@ -14,7 +14,7 @@ export default function DoorLockKeypad({ onKey }: Props) {
       templateRows="repeat(4, 1fr)"
       h="100%"
       p={4}
-      gap={4}
+      gap={2}
       placeItems="center"
       border="1px solid"
       borderColor="gray.200"

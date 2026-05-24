@@ -29,53 +29,52 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
       border="1px solid"
       borderColor="gray.200"
       px={5}
-      py={2}
+      py={5}
       gap={2}
       overflow="hidden"
     >
-      <Text
-        fontWeight="semibold"
-        fontSize="xs"
-        color="gray.400"
-        letterSpacing="widest"
-        textAlign="right"
-      >
-        {label}
-      </Text>
-
-      <Box overflow="hidden">
+      <Flex alignItems="center" justifyContent="space-between">
         {!schedule ? (
           <ScheduleCategoryBadge category="일정없음" />
+        ) : schedule.category ? (
+          <ScheduleCategoryBadge category={schedule.category} />
         ) : (
-          <>
-            {schedule.category && (
-              <Box mb={2}>
-                <ScheduleCategoryBadge category={schedule.category} />
-              </Box>
-            )}
-            {schedule.title && (
-              <Text
-                fontWeight="semibold"
-                fontSize="lg"
-                overflow="hidden"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                {schedule.title}
-              </Text>
-            )}
-          </>
+          <Box />
+        )}
+        <Text
+          fontWeight="semibold"
+          fontSize="xs"
+          color="gray.400"
+          letterSpacing="widest"
+        >
+          {label}
+        </Text>
+      </Flex>
+
+      <Box overflow="hidden">
+        {schedule?.title && (
+          <Text
+            fontWeight="semibold"
+            fontSize="lg"
+            overflow="hidden"
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {schedule.title}
+          </Text>
         )}
       </Box>
 
-      {timeLines.length > 0 && (
-        <Flex direction="column" gap={2}>
-          {timeLines.map((line, i) => (
+      <Flex direction="column" gap={2}>
+        {Array.from({ length: 2 }, (_, i) => {
+          const line = timeLines[i] ?? null;
+          return (
             <Flex
               key={i}
+              visibility={line ? "visible" : "hidden"}
               bg="gray.50"
               alignItems="center"
               justifyContent="space-between"
@@ -84,15 +83,15 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
               borderRadius="md"
             >
               <Text fontWeight="medium" fontSize="sm" color="gray.400">
-                {line.label}
+                {line?.label}
               </Text>
               <Text fontWeight="semibold" fontSize="sm">
-                {line.value}
+                {line?.value}
               </Text>
             </Flex>
-          ))}
-        </Flex>
-      )}
+          );
+        })}
+      </Flex>
     </Box>
   );
 }
