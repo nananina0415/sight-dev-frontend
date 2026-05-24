@@ -74,6 +74,7 @@ export default function DoorLockContainer() {
         const message =
           result.reason === "timeout" ? "서버 응답이 없습니다." :
           result.reason === "network" ? "서버에 연결할 수 없습니다." :
+          result.reason === "signal_failed" ? "도어락 신호 전송에 실패했습니다." :
           "등록되지 않은 학번입니다.";
         toast.error(message, toastOptions);
       }
