@@ -22,6 +22,7 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
   return (
     <Box
       w="100%"
+      h="100%"
       display="flex"
       flexDirection="column"
       bg="white"
@@ -51,7 +52,7 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
         </Text>
       </Flex>
 
-      <Box overflow="hidden">
+      <Flex overflow="hidden" alignItems="center" justifyContent="center">
         {schedule?.title && (
           <Text
             fontWeight="semibold"
@@ -62,11 +63,15 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
             }}
+            lineClamp={2}
+            lineHeight="1.5"
+            h="3em"
+            w="95%"
           >
             {schedule.title}
           </Text>
         )}
-      </Box>
+      </Flex>
 
       <Flex direction="column" gap={2}>
         {Array.from({ length: 2 }, (_, i) => {
