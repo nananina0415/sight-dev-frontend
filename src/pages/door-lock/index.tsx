@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import DoorLockContainer from "../../features/door-lock/DoorLockContainer";
 import "../../features/door-lock/doorLockDark.css";
 import styles from "./style.module.css";
@@ -23,7 +24,7 @@ export default function DoorLockPage() {
     <div className={`${styles.page} door-lock-dark`}>
       <header className={styles.header}>
         <img
-          src="/logo/logo-dark.png"
+          src="/logo/logo-dark-v12.png"
           alt="KHLUG Logo"
           className={styles.logo}
         />
@@ -32,6 +33,7 @@ export default function DoorLockPage() {
       <main className={styles.main}>
         <DoorLockContainer />
       </main>
+      <ToastContainer containerId="door-lock" theme="dark" />
     </div>
   );
 }

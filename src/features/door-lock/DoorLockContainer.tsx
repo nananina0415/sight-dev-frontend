@@ -99,7 +99,7 @@ export default function DoorLockContainer() {
     } else if (key === "↵") {
       if (input.length !== 10 || isAuthenticating) return;
       setIsAuthenticating(true);
-      const toastId = toast.loading("인증 중...", { position: "top-center" });
+      const toastId = toast.loading("인증 중...", { position: "top-center", containerId: "door-lock" });
       const result = await authenticate(input);
       setInput("");
       setIsAuthenticating(false);
@@ -108,6 +108,7 @@ export default function DoorLockContainer() {
         position: "top-center" as const,
         autoClose: 1500,
         hideProgressBar: true,
+        containerId: "door-lock",
       };
       if (result.success) {
         const welcome = result.name
