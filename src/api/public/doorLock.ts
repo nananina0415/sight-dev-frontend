@@ -124,6 +124,14 @@ const MEMBERS_DATE_KEY = "door_lock_members_date";
 export const getMembersDate = (): string | null =>
   localStorage.getItem(MEMBERS_DATE_KEY);
 
+export const sendDaemonDownAlert = (): Promise<void> =>
+  apiV2Client
+    .post("/internal/door-lock/alert-die", null, {
+      headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY },
+    })
+    .then(() => {})
+    .catch(() => {});
+
 export const syncMembers = async (): Promise<void> => {
   const today = todayString();
   if (localStorage.getItem(MEMBERS_DATE_KEY) === today) return;
