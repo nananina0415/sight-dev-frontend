@@ -156,17 +156,7 @@ export default function DoorLockContainer() {
     : {
         category: "일정없음" as const,
         title: "자유롭게 이용하세요.",
-        timeLines: [
-          {
-            label: "남음",
-            value: formatDuration(
-              (nextSchedule && new Date(nextSchedule.scheduledAt) > now
-                ? new Date(nextSchedule.scheduledAt)
-                : midnight
-              ).getTime() - now.getTime(),
-            ),
-          },
-        ],
+        timeLines: [],
       };
 
   const nextScheduleCardData = nextSchedule
