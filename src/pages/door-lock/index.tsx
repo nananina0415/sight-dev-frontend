@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DoorLockContainer from "../../features/door-lock/DoorLockContainer";
+import "../../features/door-lock/doorLockDark.css";
 import styles from "./style.module.css";
 
 function Clock() {
@@ -19,10 +20,10 @@ function Clock() {
 
 export default function DoorLockPage() {
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} door-lock-dark`}>
       <header className={styles.header}>
         <img
-          src="https://cdn.khlug.org/images/khlug-long-logo.png"
+          src="/logo/logo-dark.png"
           alt="KHLUG Logo"
           className={styles.logo}
         />

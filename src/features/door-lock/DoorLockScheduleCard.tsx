@@ -25,10 +25,10 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
       h="100%"
       display="flex"
       flexDirection="column"
-      bg="white"
+      bg="var(--dl-card-bg)"
       borderRadius="xl"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor="var(--dl-card-border)"
       px={5}
       py={5}
       gap={2}
@@ -45,7 +45,7 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
         <Text
           fontWeight="semibold"
           fontSize="xs"
-          color="gray.400"
+          color="var(--dl-text-label)"
           letterSpacing="widest"
         >
           {label}
@@ -57,6 +57,7 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
           <Text
             fontWeight="semibold"
             fontSize="lg"
+            color="var(--dl-text-primary)"
             overflow="hidden"
             style={{
               display: "-webkit-box",
@@ -80,17 +81,17 @@ export default function DoorLockScheduleCard({ label, schedule }: Props) {
             <Flex
               key={i}
               visibility={line ? "visible" : "hidden"}
-              bg="gray.50"
+              bg="var(--dl-card-row-bg)"
               alignItems="center"
               justifyContent="space-between"
               px={4}
               py={2}
               borderRadius="md"
             >
-              <Text fontWeight="medium" fontSize="sm" color="gray.400">
+              <Text fontWeight="medium" fontSize="sm" color="var(--dl-text-label)">
                 {line?.label}
               </Text>
-              <Text fontWeight="semibold" fontSize="sm">
+              <Text fontWeight="semibold" fontSize="sm" color="var(--dl-text-primary)">
                 {line?.value}
               </Text>
             </Flex>

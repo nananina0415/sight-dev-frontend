@@ -19,18 +19,42 @@ export default function DoorLockKeypad({ onKey }: Props) {
       gap={4}
       placeItems="center"
     >
-      {KEYS.map((key) => (
-        <Button
-          key={key}
-          className={styles.button}
-          variant={key === "↵" ? "primary" : "neutral"}
-          borderRadius="100%"
-          fontSize="xl"
-          onClick={() => onKey(key)}
-        >
-          {key}
-        </Button>
-      ))}
+      {KEYS.map((key) =>
+        key === "↵" ? (
+          <Button
+            key={key}
+            className={styles.button}
+            variant="primary"
+            borderRadius="100%"
+            fontSize="xl"
+            bg="var(--dl-key-enter-bg)"
+            color="var(--dl-key-enter-text)"
+            borderColor="var(--dl-key-enter-border)"
+            border="1px solid"
+            _hover={{ bg: "var(--dl-key-enter-bg)" }}
+            _active={{ bg: "var(--dl-key-enter-active-bg)", color: "white", transition: "none" }}
+            onClick={() => onKey(key)}
+          >
+            {key}
+          </Button>
+        ) : (
+          <Button
+            key={key}
+            className={styles.button}
+            variant="neutral"
+            borderRadius="100%"
+            fontSize="xl"
+            bg="var(--dl-key-bg)"
+            color="var(--dl-key-text)"
+            borderColor="var(--dl-key-border)"
+            _hover={{ bg: "var(--dl-key-hover-bg)", borderColor: "var(--dl-key-border)" }}
+            _active={{ bg: "var(--dl-key-active-bg)", color: "var(--dl-key-text)", borderColor: "var(--dl-key-border)", transition: "none" }}
+            onClick={() => onKey(key)}
+          >
+            {key}
+          </Button>
+        ),
+      )}
     </Grid>
   );
 }
