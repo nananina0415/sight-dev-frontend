@@ -44,30 +44,6 @@ export const getCurrentAttendanceSchedules = async (): Promise<
       checkCode: "4829",
       attendees: [],
     },
-    {
-      id: 10,
-      title: "5월 정기 회의",
-      category: "동아리",
-      scheduledAt: "2026-05-23T19:00:00",
-      checkCode: "4829",
-      attendees: [],
-    },
-    {
-      id: 10,
-      title: "5월 정기 회의",
-      category: "동아리",
-      scheduledAt: "2026-05-23T19:00:00",
-      checkCode: "4829",
-      attendees: [],
-    },
-    {
-      id: 10,
-      title: "5월 정기 회의",
-      category: "동아리",
-      scheduledAt: "2026-05-23T19:00:00",
-      checkCode: "4829",
-      attendees: [],
-    },
   ];
 };
 

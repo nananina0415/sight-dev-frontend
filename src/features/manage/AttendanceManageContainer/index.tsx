@@ -56,19 +56,52 @@ function QrModal({
 
 function CurrentAttendanceCard({ schedule }: { schedule: AttendanceSchedule }) {
   const [showQr, setShowQr] = useState(false);
+  const [titleWraps, setTitleWraps] = useState(false);
+  const testTitleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = testTitleRef.current;
+    if (!el) return;
+    const check = () => setTitleWraps(el.scrollWidth > el.clientWidth);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el.parentElement!);
+    return () => ro.disconnect();
+  }, [schedule.title]);
+
   return (
     <>
       <div className={styles["current-card"]}>
-        <div className={styles["current-card-info"]}>
-          <ScheduleCategoryBadge category={schedule.category} />
-          <div style={{ fontWeight: 600 }}>{schedule.title}</div>
-        </div>
-        <div className={styles["current-card-right"]}>
-          <div className={styles["current-card-code"]}>
-            코드: <span>{schedule.checkCode}</span>
+        <div className={styles["current-card-main-row"]}>
+          <div className={styles["current-card-info"]}>
+            <ScheduleCategoryBadge category={schedule.category} />
+            <div
+              ref={testTitleRef}
+              className={styles["current-card-title"]}
+              style={{ visibility: titleWraps ? "hidden" : "visible", fontWeight: 600 }}
+            >
+              {schedule.title}
+            </div>
           </div>
-          <Button onClick={() => setShowQr(true)}>QR 생성</Button>
+          <div className={styles["current-card-right"]}>
+            <div className={styles["current-card-code"]}>
+              코드: <span>{schedule.checkCode}</span>
+            </div>
+            <Button
+              bg="brand.50"
+              color="brand.500"
+              borderColor="brand.200"
+              border="1px solid"
+              _hover={{ bg: "brand.100" }}
+              onClick={() => setShowQr(true)}
+            >
+              QR 생성
+            </Button>
+          </div>
         </div>
+        {titleWraps && (
+          <div style={{ fontWeight: 600 }}>{schedule.title}</div>
+        )}
       </div>
       {showQr && (
         <QrModal schedule={schedule} onClose={() => setShowQr(false)} />
@@ -209,7 +242,7 @@ function ManualGrantSection() {
               onChange={(e) => setYear(Number(e.target.value))}
               className={styles["borderless-select"]}
             >
-              {yearOptions.map((y) => (
+              {[...yearOptions].reverse().map((y) => (
                 <option key={y} value={y}>
                   {y}년
                 </option>
