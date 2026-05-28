@@ -14,7 +14,7 @@ export type DoorLockStatus = {
 };
 
 export type AuthResult =
-  | { success: true; name: string }
+  | { success: true; name: string; localUsed?: true }
   | { success: false; reason: "unauthorized" }
   | { success: false; reason: "timeout" | "network" | "signal_failed"; localNotFound: boolean };
 
@@ -87,10 +87,7 @@ export const syncMembers = async (): Promise<void> => {
     localStorage.setItem(MEMBERS_KEY, JSON.stringify(map));
     localStorage.setItem(MEMBERS_DATE_KEY, today);
   } catch {
-    if (!localStorage.getItem(MEMBERS_KEY)) {
-      localStorage.setItem(MEMBERS_KEY, JSON.stringify({ "1111111111": "김김김" }));
-      localStorage.setItem(MEMBERS_DATE_KEY, today);
-    }
+    // 실패 시 기존 캐시 유지, 날짜 미갱신으로 다음 마운트에서 재시도
   }
 };
 
@@ -108,7 +105,7 @@ const localFallback = (
 ): AuthResult => {
   const local = lookupLocal(studentId);
   return local.found
-    ? { success: true, name: local.name }
+    ? { success: true, name: local.name, localUsed: true }
     : { success: false, reason, localNotFound: true };
 };
 

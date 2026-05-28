@@ -34,12 +34,19 @@ export default function DoorLockContainer() {
   useEffect(() => {
     let failCount = 0;
     let alertSent = false;
+    let hasEverConnected = false;
+    let alertResetId: ReturnType<typeof setTimeout> | null = null;
 
     const checkHealth = () =>
       fetch("http://localhost:8080/health")
         .then((r) => {
           if (r.ok) {
             failCount = 0;
+            hasEverConnected = true;
+            if (alertResetId !== null) {
+              clearTimeout(alertResetId);
+              alertResetId = null;
+            }
             alertSent = false;
             setIsServerOnline(true);
           } else {
@@ -49,33 +56,35 @@ export default function DoorLockContainer() {
         .catch(() => {
           failCount += 1;
           setIsServerOnline(false);
-          if (failCount >= 3 && !alertSent) {
+          if (hasEverConnected && failCount >= 3 && !alertSent) {
             alertSent = true;
             sendDaemonDownAlert();
+            alertResetId = setTimeout(() => {
+              alertSent = false;
+            }, 60 * 60_000);
           }
         });
 
-    checkHealth();
-    let lastDate = new Date().toISOString().slice(0, 10);
-    const id = setInterval(() => {
-      const next = new Date();
-      const nextDate = next.toISOString().slice(0, 10);
-      if (nextDate !== lastDate) {
-        lastDate = nextDate;
-        syncMembers();
-      }
-      checkHealth();
+    const fetchSchedules = () => {
       getCurrentSchedule().then(setCurrentSchedule);
       getNextSchedule().then(setNextSchedule);
-    }, 10000);
-    return () => clearInterval(id);
-  }, []);
+    };
 
-  useEffect(() => {
-    getCurrentSchedule().then(setCurrentSchedule);
-    getNextSchedule().then(setNextSchedule);
-    getDoorLockStatus().then(setStatus);
+    checkHealth();
+    fetchSchedules();
     syncMembers();
+    getDoorLockStatus().then(setStatus);
+
+    const healthId = setInterval(checkHealth, 10_000);
+    const scheduleId = setInterval(fetchSchedules, 60_000);
+    const membersId = setInterval(syncMembers, 10 * 60_000);
+
+    return () => {
+      clearInterval(healthId);
+      clearInterval(scheduleId);
+      clearInterval(membersId);
+      if (alertResetId !== null) clearTimeout(alertResetId);
+    };
   }, []);
 
   const handleKey = async (key: string) => {
@@ -95,9 +104,13 @@ export default function DoorLockContainer() {
         hideProgressBar: true,
       };
       if (result.success) {
-        const welcome = result.name
-          ? `${result.name}님 환영합니다.`
-          : "환영합니다.";
+        if (result.localUsed) {
+          toast.warn(
+            `서버 연결 실패, ${getMembersDate() ?? "알 수 없는 날짜"}자 로컬 DB를 사용합니다.`,
+            toastOptions,
+          );
+        }
+        const welcome = result.name ? `${result.name}님 환영합니다.` : "환영합니다.";
         toast.success(welcome, toastOptions);
       } else {
         const message =
@@ -110,10 +123,7 @@ export default function DoorLockContainer() {
                 : "등록되지 않은 학번입니다.";
         toast.error(message, toastOptions);
         if ("localNotFound" in result && result.localNotFound) {
-          toast.error(
-            "해당 회원을 로컬 DB에서 찾을 수 없습니다.",
-            toastOptions,
-          );
+          toast.error("해당 회원을 로컬 DB에서 찾을 수 없습니다.", toastOptions);
         }
       }
     } else {
@@ -182,9 +192,9 @@ export default function DoorLockContainer() {
           alignItems="center"
           w="95%"
           borderRadius="xl"
-          bg="#ffffff"
+          bg="var(--dl-card-bg)"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor="var(--dl-card-border)"
         >
           <chakra.input
             readOnly
@@ -195,6 +205,7 @@ export default function DoorLockContainer() {
             letterSpacing="wide"
             fontVariantNumeric="tabular-nums"
             lineHeight="1"
+            color="var(--dl-text-primary)"
             w="100%"
             textAlign="center"
             border="none"
@@ -206,7 +217,7 @@ export default function DoorLockContainer() {
             _placeholder={{
               fontSize: "3xl",
               letterSpacing: "normal",
-              color: "gray.400",
+              color: "var(--dl-text-placeholder)",
             }}
           />
         </Flex>
@@ -219,7 +230,7 @@ export default function DoorLockContainer() {
           w="95%"
         >
           {isServerOnline ? (
-            <Box color="gray.500">
+            <Box color="var(--dl-text-muted)">
               <Text as="span" fontSize="md" mr={8}>
                 오늘{" "}
                 <Text as="span" fontWeight="bold">
@@ -235,7 +246,7 @@ export default function DoorLockContainer() {
               </Text>
             </Box>
           ) : (
-            <Box color="red.500" fontSize="sm" fontWeight="medium">
+            <Box color="var(--dl-text-error)" fontSize="sm" fontWeight="medium">
               <strong>서버에 연결되어 있지 않습니다.</strong>
               <br />
               <strong>
