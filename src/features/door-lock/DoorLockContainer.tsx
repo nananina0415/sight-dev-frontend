@@ -15,28 +15,14 @@ import {
   type DoorLockStatus,
 } from "../../api/public/doorLock";
 
-function formatDuration(ms: number): string {
-  const totalMinutes = Math.floor(Math.abs(ms) / 60000);
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return h === 0 ? `${m}분` : `${h}시간 ${m}분`;
-}
-
 function formatTime(isoString: string): string {
   const d = new Date(isoString);
   return `${d.getHours()}시 ${String(d.getMinutes()).padStart(2, "0")}분`;
 }
 
-const midnight = (() => {
-  const d = new Date();
-  d.setHours(24, 0, 0, 0);
-  return d;
-})();
-
 export default function DoorLockContainer() {
   const [input, setInput] = useState("");
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [now, setNow] = useState(new Date());
   const [currentSchedule, setCurrentSchedule] =
     useState<DoorLockSchedule | null>(null);
   const [nextSchedule, setNextSchedule] = useState<DoorLockSchedule | null>(
@@ -78,7 +64,6 @@ export default function DoorLockContainer() {
         lastDate = nextDate;
         syncMembers();
       }
-      setNow(next);
       checkHealth();
       getCurrentSchedule().then(setCurrentSchedule);
       getNextSchedule().then(setNextSchedule);
