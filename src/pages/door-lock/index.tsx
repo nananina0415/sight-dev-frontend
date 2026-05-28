@@ -28,13 +28,13 @@ export default function DoorLockPage() {
         <img
           src={
             isDark
-              ? "/logo/logo-dark-1.png"
+              ? "/logo/logo-dark.png"
               : "https://cdn.khlug.org/images/khlug-long-logo.png"
           }
           alt="KHLUG Logo"
           className={styles.logo}
           onClick={() => setIsDark((prev) => !prev)}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", opacity: 0.95 }}
         />
         <Clock />
       </header>
