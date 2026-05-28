@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import DoorLockContainer from "../../features/door-lock/DoorLockContainer";
 import "../../features/door-lock/doorLock.css";
 import styles from "./style.module.css";
@@ -19,19 +20,24 @@ function Clock() {
 }
 
 export default function DoorLockPage() {
+  const [isDark, setIsDark] = useState(false);
+
   return (
-    <div className={styles.page}>
+    <div className={isDark ? `${styles.page} door-lock-dark` : styles.page}>
       <header className={styles.header}>
         <img
           src="https://cdn.khlug.org/images/khlug-long-logo.png"
           alt="KHLUG Logo"
           className={styles.logo}
+          onClick={() => setIsDark((prev) => !prev)}
+          style={{ cursor: "pointer" }}
         />
         <Clock />
       </header>
       <main className={styles.main}>
         <DoorLockContainer />
       </main>
+      <ToastContainer containerId="door-lock" theme={isDark ? "dark" : "light"} />
     </div>
   );
 }
