@@ -25,58 +25,6 @@ type RawSchedule = {
   endAt: string | null;
 };
 
-type ScheduleCache = {
-  schedules: RawSchedule[];
-  fetchedAt: number;
-  date: string; // YYYY-MM-DD
-};
-
-const CACHE_KEY = "door_lock_schedules";
-const CACHE_TTL_MS = 60 * 60 * 1000;
-
-const todayString = () => new Date().toISOString().slice(0, 10);
-
-let inflightFetch: Promise<void> | null = null;
-
-const readCache = (): RawSchedule[] | null => {
-  const raw = localStorage.getItem(CACHE_KEY);
-  if (!raw) return null;
-  const cache: ScheduleCache = JSON.parse(raw);
-  return cache.date === todayString() ? cache.schedules : null;
-};
-
-const isCacheStale = (): boolean => {
-  const raw = localStorage.getItem(CACHE_KEY);
-  if (!raw) return true;
-  const cache: ScheduleCache = JSON.parse(raw);
-  return cache.date !== todayString() || Date.now() - cache.fetchedAt >= CACHE_TTL_MS;
-};
-
-export const fetchAndCacheSchedules = (): Promise<void> => {
-  if (inflightFetch) return inflightFetch;
-
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-
-  inflightFetch = apiV2Client
-    .get<{ schedules: RawSchedule[] }>("/schedules", {
-      params: { from: startOfDay.toISOString(), limit: 50 },
-      headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY },
-    })
-    .then((res) => {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        schedules: res.data.schedules,
-        fetchedAt: Date.now(),
-        date: todayString(),
-      } satisfies ScheduleCache));
-    })
-    .finally(() => {
-      inflightFetch = null;
-    });
-
-  return inflightFetch;
-};
-
 const toSchedule = (s: RawSchedule): DoorLockSchedule => ({
   category: s.category as DoorLockSchedule["category"],
   title: s.title,
@@ -84,51 +32,45 @@ const toSchedule = (s: RawSchedule): DoorLockSchedule => ({
   endAt: s.endAt,
 });
 
-const ensureCache = async (): Promise<RawSchedule[]> => {
-  if (isCacheStale()) {
-    await fetchAndCacheSchedules().catch(() => {});
-  }
-  return readCache() ?? [];
-};
+const SYSTEM_HEADER = { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY };
 
-export const getCurrentSchedule =
-  async (): Promise<DoorLockSchedule | null> => {
-    const now = new Date();
-    const schedules = await ensureCache();
-    const current = schedules.find((s: RawSchedule) => {
-      const start = new Date(s.scheduledAt);
-      const end = s.endAt ? new Date(s.endAt) : null;
-      return start <= now && (end === null || end >= now);
-    });
-    return current ? toSchedule(current) : null;
-  };
+export const getCurrentSchedule = async (): Promise<DoorLockSchedule | null> => {
+  try {
+    const resp = await fetch("http://localhost:8080/schedules/now");
+    if (!resp.ok) return null;
+    const data = await resp.json() as RawSchedule | null;
+    return data ? toSchedule(data) : null;
+  } catch {
+    return null;
+  }
+};
 
 export const getNextSchedule = async (): Promise<DoorLockSchedule | null> => {
-  const now = new Date();
-  const schedules = await ensureCache();
-  const next = schedules.find((s: RawSchedule) => new Date(s.scheduledAt) > now);
-  return next ? toSchedule(next) : null;
+  try {
+    const resp = await fetch("http://localhost:8080/schedules/next");
+    if (!resp.ok) return null;
+    const data = await resp.json() as RawSchedule | null;
+    return data ? toSchedule(data) : null;
+  } catch {
+    return null;
+  }
 };
 
-export const getDoorLockStatus = async (): Promise<DoorLockStatus> => {
-  // TODO: replace with real API call
-  return {
-    todayVisitorCount: 12,
-    currentRoomCount: 3,
-  };
+export const getDoorLockStatus = async (): Promise<DoorLockStatus | null> => {
+  return null;
 };
 
 const MEMBERS_KEY = "door_lock_members";
 const MEMBERS_DATE_KEY = "door_lock_members_date";
+
+const todayString = () => new Date().toISOString().slice(0, 10);
 
 export const getMembersDate = (): string | null =>
   localStorage.getItem(MEMBERS_DATE_KEY);
 
 export const sendDaemonDownAlert = (): Promise<void> =>
   apiV2Client
-    .post("/internal/door-lock/alert-die", null, {
-      headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY },
-    })
+    .post("/internal/door-lock/alert-die", null, { headers: SYSTEM_HEADER })
     .then(() => {})
     .catch(() => {});
 
@@ -136,17 +78,16 @@ export const syncMembers = async (): Promise<void> => {
   const today = todayString();
   if (localStorage.getItem(MEMBERS_DATE_KEY) === today) return;
   try {
-    const resp = await apiV2Client.get<{ members: { studentId: number; name: string }[] }>(
+    const resp = await apiV2Client.get<{ members: { number: number; name: string }[] }>(
       "/internal/door-lock/members",
-      { headers: { "x-api-key": import.meta.env.VITE_DOOR_LOCK_API_KEY } },
+      { headers: SYSTEM_HEADER },
     );
     const map: Record<string, string> = {};
-    for (const m of resp.data.members) map[String(m.studentId)] = m.name;
+    for (const m of resp.data.members) map[String(m.number)] = m.name;
     localStorage.setItem(MEMBERS_KEY, JSON.stringify(map));
     localStorage.setItem(MEMBERS_DATE_KEY, today);
   } catch {
     if (!localStorage.getItem(MEMBERS_KEY)) {
-      // TODO: 백엔드 API 구현 후 제거
       localStorage.setItem(MEMBERS_KEY, JSON.stringify({ "1111111111": "김김김" }));
       localStorage.setItem(MEMBERS_DATE_KEY, today);
     }

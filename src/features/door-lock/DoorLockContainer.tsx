@@ -223,14 +223,14 @@ export default function DoorLockContainer() {
               <Text as="span" fontSize="md" mr={8}>
                 오늘{" "}
                 <Text as="span" fontWeight="bold">
-                  {status?.todayVisitorCount ?? "-"}명
+                  {status?.todayVisitorCount ?? "?"}명
                 </Text>{" "}
                 방문
               </Text>
               <Text as="span" fontSize="md">
                 현재{" "}
                 <Text as="span" fontWeight="bold">
-                  {status?.currentRoomCount ?? "-"}명
+                  {status?.currentRoomCount ?? "?"}명
                 </Text>
               </Text>
             </Box>
