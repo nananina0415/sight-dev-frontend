@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import QRCode from "qrcode";
@@ -11,9 +11,12 @@ import {
   getCurrentAttendanceSchedules,
   getAttendanceHistory,
   getSchedulesByMonth,
-  getScheduleAttendeeIds,
-  grantAttendance,
-  type AttendanceSchedule,
+  getScheduleAttendees,
+  addAttendances,
+  removeAttendance,
+  type AttendanceMember,
+  type CurrentSchedule,
+  type HistorySchedule,
 } from "../../../api/manage/attendance";
 import styles from "./style.module.css";
 
@@ -23,7 +26,7 @@ function QrModal({
   schedule,
   onClose,
 }: {
-  schedule: AttendanceSchedule;
+  schedule: CurrentSchedule;
   onClose: () => void;
 }) {
   const rendered = useRef(false);
@@ -31,7 +34,7 @@ function QrModal({
   const renderQr = (el: HTMLCanvasElement | null) => {
     if (!el || rendered.current) return;
     rendered.current = true;
-    const url = `${window.location.origin}/attendance?password=${schedule.checkCode}`;
+    const url = `${window.location.origin}/attendance/${schedule.id}?code=${schedule.checkCode}`;
     QRCode.toCanvas(el, url, { width: 240, margin: 2 });
   };
 
@@ -54,7 +57,7 @@ function QrModal({
 
 // ── 현황 섹션 ─────────────────────────────────────────────────────────────────
 
-function CurrentAttendanceCard({ schedule }: { schedule: AttendanceSchedule }) {
+function CurrentAttendanceCard({ schedule }: { schedule: CurrentSchedule }) {
   const [showQr, setShowQr] = useState(false);
   const [titleWraps, setTitleWraps] = useState(false);
   const testTitleRef = useRef<HTMLDivElement>(null);
@@ -143,9 +146,7 @@ function ManualGrantSection() {
   const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [originalAttendees, setOriginalAttendees] = useState<Set<number>>(
-    new Set(),
-  );
+  const [originalAttendees, setOriginalAttendees] = useState<Set<number>>(new Set());
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [scheduleId, setScheduleId] = useState<number | "">("");
@@ -166,17 +167,19 @@ function ManualGrantSection() {
     setScheduleId(schedules[0]?.id ?? "");
   }, [schedules]);
 
-  const { data: attendeeIds } = useQuery({
+  const { data: attendances } = useQuery({
     queryKey: ["schedule-attendees", scheduleId],
-    queryFn: () => getScheduleAttendeeIds(scheduleId as number),
+    queryFn: () => getScheduleAttendees(scheduleId as number),
     enabled: scheduleId !== "",
   });
 
   useEffect(() => {
-    const ids = new Set(attendeeIds ?? []);
+    const ids = new Set(
+      (attendances ?? []).filter((a) => a.isChecked).map((a) => a.userId)
+    );
     setSelected(new Set(ids));
     setOriginalAttendees(new Set(ids));
-  }, [attendeeIds]);
+  }, [attendances]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -216,7 +219,12 @@ function ManualGrantSection() {
     e.preventDefault();
     if (scheduleId === "") return;
     try {
-      await grantAttendance(scheduleId as number, Array.from(selected));
+      const toAdd = Array.from(selected).filter((id) => !originalAttendees.has(id));
+      const toRemove = Array.from(originalAttendees).filter((id) => !selected.has(id));
+      await Promise.all([
+        addAttendances(scheduleId as number, toAdd),
+        ...toRemove.map((id) => removeAttendance(scheduleId as number, id)),
+      ]);
       setOriginalAttendees(new Set(selected));
       queryClient.invalidateQueries({ queryKey: ["attendance-history"] });
       toast.success("출석이 지급되었습니다.", { autoClose: 1000, hideProgressBar: true });
@@ -388,17 +396,52 @@ function ManualGrantSection() {
 
 // ── 내역 카드 ─────────────────────────────────────────────────────────────────
 
-function HistoryCard({ schedule }: { schedule: AttendanceSchedule }) {
+function HistoryCard({
+  schedule,
+  members,
+}: {
+  schedule: HistorySchedule;
+  members: AttendanceMember[];
+}) {
   const [open, setOpen] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
+
+  const { data: attendances, isLoading } = useQuery({
+    queryKey: ["schedule-attendees", schedule.id],
+    queryFn: () => getScheduleAttendees(schedule.id),
+    enabled: hasOpened,
+  });
+
+  const memberMap = useMemo(
+    () => new Map(members.map((m) => [m.id, m.name])),
+    [members]
+  );
+
+  const checkedNames = useMemo(
+    () =>
+      (attendances ?? [])
+        .filter((a) => a.isChecked)
+        .map((a) => memberMap.get(a.userId) ?? `#${a.userId}`)
+        .sort((a, b) => a.localeCompare(b, "ko")),
+    [attendances, memberMap]
+  );
+
+  const handleToggle = () => {
+    if (!hasOpened) setHasOpened(true);
+    setOpen((v) => !v);
+  };
+
   const date = new Date(schedule.scheduledAt);
 
   return (
     <div className={styles["history-card"]}>
       <div
         className={styles["history-card-header"]}
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
       >
-        <ScheduleCategoryBadge category={schedule.category} />
+        {schedule.category && (
+          <ScheduleCategoryBadge category={schedule.category} />
+        )}
         <div className={styles["history-card-meta"]} style={{ flex: 1 }}>
           <span className={styles["history-card-title"]}>{schedule.title}</span>
         </div>
@@ -415,24 +458,28 @@ function HistoryCard({ schedule }: { schedule: AttendanceSchedule }) {
             })}
           </span>
           <span className={styles["history-card-count"]}>
-            {schedule.attendees.length > 0 ? `${schedule.attendees.length}명` : ""}
+            {attendances
+              ? checkedNames.length > 0
+                ? `${checkedNames.length}명`
+                : ""
+              : ""}
           </span>
           <span>{open ? "▲" : "▼"}</span>
         </div>
       </div>
       {open && (
         <div className={styles["history-card-body"]}>
-          {schedule.attendees.length === 0 ? (
+          {isLoading ? (
+            <span className={styles["no-attendee"]}>불러오는 중...</span>
+          ) : checkedNames.length === 0 ? (
             <span className={styles["no-attendee"]}>출석자 없음</span>
           ) : (
             <div className={styles["attendee-list"]}>
-              {[...schedule.attendees]
-                .sort((a, b) => a.localeCompare(b, "ko"))
-                .map((name) => (
-                  <span key={name} className={styles["attendee-chip"]}>
-                    {name}
-                  </span>
-                ))}
+              {checkedNames.map((name) => (
+                <span key={name} className={styles["attendee-chip"]}>
+                  {name}
+                </span>
+              ))}
             </div>
           )}
         </div>
@@ -449,6 +496,11 @@ export default function AttendanceManageContainer() {
   const [historyYear, setHistoryYear] = useState(currentYear);
   const yearOptions = Array.from({ length: currentYear - 1998 }, (_, i) => 1999 + i);
 
+  const { data: members = [] } = useQuery({
+    queryKey: ["attendance-members"],
+    queryFn: getMembers,
+  });
+
   const { data: history = [] } = useQuery({
     queryKey: ["attendance-history", historyYear],
     queryFn: () => getAttendanceHistory(historyYear),
@@ -456,7 +508,7 @@ export default function AttendanceManageContainer() {
 
   const sorted = [...history].sort(
     (a, b) =>
-      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
+      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
   );
 
   return (
@@ -489,7 +541,7 @@ export default function AttendanceManageContainer() {
         </div>
         <div className={styles["history-list"]}>
           {sorted.map((s) => (
-            <HistoryCard key={s.id} schedule={s} />
+            <HistoryCard key={s.id} schedule={s} members={members} />
           ))}
         </div>
       </Container>
