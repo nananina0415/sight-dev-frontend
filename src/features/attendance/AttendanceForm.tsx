@@ -3,24 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { Box, Flex, Text, chakra } from "@chakra-ui/react";
 import Button from "../../components/Button";
 import ScheduleCategoryBadge from "../../components/ScheduleCategoryBadge";
-import { getSchedule, type AttendanceSchedule } from "../../api/public/attendance";
+import { getActiveSchedule, type AttendanceSchedule } from "../../api/public/attendance";
 
-type Props = {
-  scheduleId: string;
-};
-
-export default function AttendanceForm({ scheduleId }: Props) {
+export default function AttendanceForm() {
   const [schedule, setSchedule] = useState<AttendanceSchedule | null | "loading">("loading");
   const [code, setCode] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    getSchedule(scheduleId).then(setSchedule);
-  }, [scheduleId]);
+    getActiveSchedule().then(setSchedule);
+  }, []);
 
   const handleSubmit = () => {
-    if (code.length !== 4) return;
-    navigate(`/attendance/${scheduleId}?code=${code}`);
+    if (code.length !== 4 || !schedule || schedule === "loading") return;
+    navigate(`/attendance/${schedule.id}?code=${code}`);
   };
 
   if (schedule === "loading") {
@@ -36,7 +32,10 @@ export default function AttendanceForm({ scheduleId }: Props) {
       <Flex direction="column" align="center" pt={16} px={6} gap={3}>
         <Text fontSize="3xl">🔒</Text>
         <Text fontSize="lg" fontWeight="semibold" color="gray.600">
-          일정을 찾을 수 없습니다
+          현재 열린 출석체크가 없습니다
+        </Text>
+        <Text fontSize="sm" color="gray.400">
+          출석체크가 시작되면 이 페이지에서 참여할 수 있습니다.
         </Text>
       </Flex>
     );
