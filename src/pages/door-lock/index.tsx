@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DoorLockContainer from "../../features/door-lock/DoorLockContainer";
+import "../../features/door-lock/doorLock.css";
 import styles from "./style.module.css";
 
 function Clock() {

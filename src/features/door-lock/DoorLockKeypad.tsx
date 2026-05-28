@@ -17,7 +17,7 @@ export default function DoorLockKeypad({ onKey }: Props) {
       gap={2}
       placeItems="center"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor="var(--dl-keypad-border)"
       borderRadius="xl"
     >
       {KEYS.map((key) =>
@@ -29,11 +29,12 @@ export default function DoorLockKeypad({ onKey }: Props) {
             onClick={() => onKey(key)}
             fontSize="4xl"
             fontWeight="bold"
-            color="#000000"
-            bg="brand.50"
+            color="var(--dl-key-enter-text)"
+            bg="var(--dl-key-enter-bg)"
             borderRadius="10%"
-            borderColor="brand.100"
-            _active={{ transition: "none", bg: "brand.500" }}
+            borderColor="var(--dl-key-enter-border)"
+            _hover={{ bg: "var(--dl-key-enter-bg)" }}
+            _active={{ transition: "none", bg: "var(--dl-key-enter-active-bg)" }}
           >
             {key}
           </Button>
@@ -46,12 +47,15 @@ export default function DoorLockKeypad({ onKey }: Props) {
             h="100%"
             fontSize="3xl"
             fontWeight="bold"
-            bg="white"
+            bg="var(--dl-key-bg)"
+            color="var(--dl-key-text)"
+            borderColor="var(--dl-key-border)"
             borderRadius="10%"
+            _hover={{ bg: "var(--dl-key-hover-bg)", borderColor: "var(--dl-key-border)" }}
             _active={{
-              bg: "brand.300",
-              color: "white",
-              borderColor: "brand.50",
+              bg: "var(--dl-key-active-bg)",
+              color: "var(--dl-key-active-color)",
+              borderColor: "var(--dl-key-active-border)",
               transition: "none",
             }}
             onClick={() => onKey(key)}
