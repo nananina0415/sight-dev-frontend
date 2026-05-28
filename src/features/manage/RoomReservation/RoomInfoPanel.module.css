@@ -1,0 +1,105 @@
+.room-info-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.room-info-panel__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+/* 방 설명 카드 (미선택 시) */
+.room-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.room-card:hover {
+  border-color: #00a0e9;
+  background: #f0f9ff;
+}
+
+.room-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #e6f7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.room-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-card__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.room-card__desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.room-card__capacity {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.room-card__disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.room-card__disabled:hover {
+  border-color: #e2e8f0 !important;
+  background: #f8fafc !important;
+}
+
+.room-card-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.badge__restricted {
+  background: #fee2e2;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+}
+
+.badge__under_construction {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d;
+}
+

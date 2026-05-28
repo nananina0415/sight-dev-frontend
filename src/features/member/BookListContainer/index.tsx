@@ -180,14 +180,7 @@ export default function BookListContainer() {
         도서 목록
       </Heading>
 
-      <chakra.form
-        mb={3}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSearch();
-        }}
-      >
-      <Flex borderWidth={1} borderRadius="md" align="stretch" overflow="hidden" pr={1} gap={1}>
+      <Flex mb={3} borderWidth={1} borderRadius="md" align="stretch" overflow="hidden" pr={1} gap={1}>
         <Select.Root
           collection={searchCategories}
           value={[searchCategory]}
@@ -244,7 +237,6 @@ export default function BookListContainer() {
           <Search size={16} />
         </IconButton>
       </Flex>
-      </chakra.form>
 
       <Flex gap={2} mb={5} wrap="wrap" align="center" justify="space-between">
         <Flex gap={2} wrap="wrap">
