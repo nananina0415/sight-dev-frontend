@@ -58,6 +58,7 @@ export default function ScheduleCategoryBadge({ category }: Props) {
       fontWeight="bold"
       alignContent="center"
       style={{ backgroundColor: bg, color, border }}
+      whiteSpace="nowrap"
     >
       {category}
     </chakra.span>
