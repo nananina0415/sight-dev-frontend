@@ -48,7 +48,7 @@ function toAttendanceSchedule(raw: RawSchedule): AttendanceSchedule {
 
 export const getActiveSchedule = async (): Promise<AttendanceSchedule | null> => {
   try {
-    const resp = await apiV2Client.get<{ schedule: RawSchedule | null }>("/active-schedules");
+    const resp = await apiV2Client.get<{ schedule: RawSchedule | null }>("/active-attendances");
     const s = resp.data.schedule;
     return s ? toAttendanceSchedule(s) : null;
   } catch {

@@ -70,7 +70,7 @@ export const getMembers = async (): Promise<AttendanceMember[]> => {
 };
 
 export const getCurrentAttendanceSchedules = async (): Promise<CurrentSchedule[]> => {
-  const res = await apiV2Client.get<{ schedules: RawScheduleDto[] }>("/active-schedules");
+  const res = await apiV2Client.get<{ schedules: RawScheduleDto[] }>("/active-attendances");
   const detailed = await Promise.all(
     res.data.schedules.map((s) =>
       apiV2Client.get<RawGetScheduleResponse>(`/schedules/${s.id}`)
