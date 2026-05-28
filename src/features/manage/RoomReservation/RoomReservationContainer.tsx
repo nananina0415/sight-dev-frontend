@@ -41,7 +41,6 @@ export default function RoomReservationContainer({
       startTime: string;
       endTime: string;
       title: string;
-      description: string;
     }) => {
       // 날짜와 시간을 ISO 8601 형식으로 변환
       const scheduledAt = dayjs(

@@ -10,7 +10,6 @@ type Props = {
     startTime: string;
     endTime: string;
     title: string;
-    description: string;
   }) => void;
   isSubmitting: boolean;
 };
@@ -72,7 +71,6 @@ export default function ReservationForm({
   const [startTime, setStartTime] = useState<string>("09:00");
   const [endTime, setEndTime] = useState<string>("10:00");
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(dayjs().startOf("month"));
 
   // 캘린더 데이터 계산
@@ -115,7 +113,6 @@ export default function ReservationForm({
       startTime,
       endTime,
       title: title.trim(),
-      description: description.trim(),
     });
   };
 
@@ -268,17 +265,6 @@ export default function ReservationForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="일정 제목을 입력하세요"
-            />
-          </div>
-
-          {/* 설명 */}
-          <div className={styles["form-field"]}>
-            <label className={styles["form-field__label"]}>설명</label>
-            <textarea
-              className={styles["textarea-input"]}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="일정 설명 (선택)"
             />
           </div>
 
