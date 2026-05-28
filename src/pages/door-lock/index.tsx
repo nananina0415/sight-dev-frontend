@@ -26,7 +26,11 @@ export default function DoorLockPage() {
     <div className={isDark ? `${styles.page} door-lock-dark` : styles.page}>
       <header className={styles.header}>
         <img
-          src="https://cdn.khlug.org/images/khlug-long-logo.png"
+          src={
+            isDark
+              ? "/logo/logo-dark-1.png"
+              : "https://cdn.khlug.org/images/khlug-long-logo.png"
+          }
           alt="KHLUG Logo"
           className={styles.logo}
           onClick={() => setIsDark((prev) => !prev)}
@@ -37,7 +41,10 @@ export default function DoorLockPage() {
       <main className={styles.main}>
         <DoorLockContainer />
       </main>
-      <ToastContainer containerId="door-lock" theme={isDark ? "dark" : "light"} />
+      <ToastContainer
+        containerId="door-lock"
+        theme={isDark ? "dark" : "light"}
+      />
     </div>
   );
 }
