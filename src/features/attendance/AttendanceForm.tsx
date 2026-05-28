@@ -1,35 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Flex, Text, chakra } from "@chakra-ui/react";
 import Button from "../../components/Button";
 import ScheduleCategoryBadge from "../../components/ScheduleCategoryBadge";
-import type { ScheduleCategory } from "../../components/ScheduleCategoryBadge";
+import { getSchedule, type AttendanceSchedule } from "../../api/public/attendance";
 
-// TODO: 실제 API 연동 후 교체
-const mockSchedule = {
-  title: "정기 회의",
-  category: "동아리" as ScheduleCategory,
+type Props = {
+  scheduleId: string;
 };
 
-export default function AttendanceForm() {
-  const schedule = mockSchedule;
+export default function AttendanceForm({ scheduleId }: Props) {
+  const [schedule, setSchedule] = useState<AttendanceSchedule | null | "loading">("loading");
   const [code, setCode] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    getSchedule(scheduleId).then(setSchedule);
+  }, [scheduleId]);
+
   const handleSubmit = () => {
     if (code.length !== 4) return;
-    navigate(`/attendance?password=${code}`);
+    navigate(`/attendance/${scheduleId}?code=${code}`);
   };
+
+  if (schedule === "loading") {
+    return (
+      <Flex direction="column" align="center" pt={16}>
+        <Text fontSize="lg" color="gray.400">불러오는 중...</Text>
+      </Flex>
+    );
+  }
 
   if (!schedule) {
     return (
       <Flex direction="column" align="center" pt={16} px={6} gap={3}>
         <Text fontSize="3xl">🔒</Text>
         <Text fontSize="lg" fontWeight="semibold" color="gray.600">
-          현재 열린 출석체크가 없습니다
-        </Text>
-        <Text fontSize="sm" color="gray.400">
-          출석체크가 시작되면 이 페이지에서 참여할 수 있습니다.
+          일정을 찾을 수 없습니다
         </Text>
       </Flex>
     );
@@ -53,15 +60,11 @@ export default function AttendanceForm() {
                 <ScheduleCategoryBadge category={schedule.category} />
               </Box>
             )}
-            <Text fontWeight="bold" fontSize="xl">
-              {schedule.title}
-            </Text>
+            <Text fontWeight="bold" fontSize="xl">{schedule.title}</Text>
           </Box>
 
           <Box>
-            <Text fontSize="sm" color="gray.500" mb={2}>
-              출석 코드 4자리
-            </Text>
+            <Text fontSize="sm" color="gray.500" mb={2}>출석 코드 4자리</Text>
             <chakra.input
               value={code}
               onChange={(e) => {

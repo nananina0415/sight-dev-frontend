@@ -52,7 +52,7 @@ function App() {
           element={<GroupMatchingNewPage />}
         />
         <Route path="/manage/book" element={<BookManagePage />} />
-        <Route path="/attendance" element={<AttendancePage />} />
+        <Route path="/attendance/:scheduleId" element={<AttendancePage />} />
         <Route path="/finance" element={<FinancePage />} />
         <Route path="/book" element={<BookListPage />} />
         <Route path="/book/my" element={<BookMyPage />} />
