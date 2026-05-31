@@ -21,10 +21,11 @@ import BookListPage from "./pages/book";
 import BookMyPage from "./pages/member/book/my";
 import BookDetailPage from "./pages/book/detail";
 import BookManagePage from "./pages/manage/book";
-import AttendancePage from "./pages/manage/attendance";
 import RoomInfoPage from "./pages/manage/room-info";
 import RoomReservationPage from "./pages/manage/room-reservation";
 const BookScanPage = lazy(() => import("./pages/member/book/scan"));
+const ManageAttendancePage = lazy(() => import("./pages/manage/attendance"));
+import AttendancePage from "./pages/member/attendance";
 
 function App() {
   const router = createBrowserRouter(
@@ -56,7 +57,15 @@ function App() {
         <Route path="/manage/book" element={<BookManagePage />} />
         <Route path="/manage/room-info" element={<RoomInfoPage />} />
         <Route path="/manage/room-reservation" element={<RoomReservationPage />} />
-        <Route path="/manage/attendance" element={<AttendancePage />} />
+        <Route
+          path="/manage/attendance"
+          element={
+            <Suspense fallback={null}>
+              <ManageAttendancePage />
+            </Suspense>
+          }
+        />
+        <Route path="/attendance" element={<AttendancePage />} />
         <Route path="/finance" element={<FinancePage />} />
         <Route path="/book" element={<BookListPage />} />
         <Route path="/book/my" element={<BookMyPage />} />

@@ -285,10 +285,3 @@ import RoomReservationPage from "./pages/manage/room-reservation";
 - SEMINAR 여부에 따라 `/schedules/big-seminar` vs `/schedules` 분기
 - 토스트 알림
 
-## 추후 확장 계획
-
-1. **일정 수정/삭제** - ScheduleDetailModal에 수정/삭제 버튼 추가 (API는 구현됨)
-2. **출석 체크 UI** - checkCode 입력 UI 및 출석 등록/조회/삭제 화면 구현 (API는 구현됨), 중복 출석 시 409 에러 핸들링 포함
-3. **GET /active-schedules 연동** - 현재 진행 중 일정 조회 UI 구현
-4. **세미나 통합** - seminar 테이블 연동
-5. **포인트 시스템** - expoint 자동 부여

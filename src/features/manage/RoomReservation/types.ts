@@ -68,12 +68,16 @@ export type Room = {
   status: "available" | "restricted" | "under_construction";
 };
 
-/** 일정 */
+/** 일정 데이터 기본 구조 */
 export type Schedule = {
   id: number;
-  location: string;        // 방 위치 (405, 410 등)
+  name: string;
+  //행사명 (CLUB, ACADEMIC, EXTERNAL, MANAGEMENT, GROUP_ACTIVITY, SEMINAR, AFTERPARTY, OTHER)
+  //일반 카테고리 -> 카테고리를 GROUP_ACTIVITY로 강제 확정 동아리실 선택만 가능(405,407-1,410), 운영진 카테고리 -> CLUB, ACADEMIC, EXTERNAL, MANAGEMENT, GROUP_ACTIVITY, SEMINAR, AFTERPARTY, OTHER -> 장소 선택 가능(405,407-1,410,외부)
+
+  location: string;        // 방 위치 (405, 410, 외부 등) + 
   title: string;
-  category: string;        // CLUB, ACADEMIC, EXTERNAL
+  category: string;        // ReservationCategory 값들
   author: number;          // 등록자 (member ID)
   state: string;           // 일정 상태
   scheduledAt: string;     // ISO 8601 형식 (2024-05-14T09:00:00Z)
@@ -84,19 +88,76 @@ export type Schedule = {
   updatedAt: string;       // 수정일시
 };
 
-/** 일정 생성 요청 */
-export type CreateScheduleRequest = {
-  location: string;        // 방 위치
+
+/* ==========================================================================
+   🛠️ 관리자 피드백 기반: 일정 CRUD 생성 / 수정 요청 DTO
+   ========================================================================== */
+
+/** [공통 필드] 모든 일정 생성에 들어가는 공통 정보 */
+export type BaseCreateScheduleRequest = {
   title: string;
-  category: string;        // CLUB, ACADEMIC, EXTERNAL 등
   scheduledAt: string;     // ISO 8601 형식
   endAt: string;           // ISO 8601 형식
   useCheckCode?: boolean;  // true 시 백엔드에서 checkCode 자동 생성
-  expoint?: number;
 };
 
-/** 일정 수정 요청 */
-export type UpdateScheduleRequest = Partial<CreateScheduleRequest>;
+/** 1. 일반 회원용 (POST /schedules/group-activity) */
+export type CreateGroupActivityRequest = BaseCreateScheduleRequest & {
+  category: typeof ReservationCategory.GROUP_ACTIVITY; // "GROUP_ACTIVITY" 고정
+  location: "405" | "407-1" | "410";                  // 동아리실 선택만 가능 (경험치 없음)
+};
+
+/** 2. 운영진용 (POST /schedules) */
+export type CreateAdminScheduleRequest = BaseCreateScheduleRequest & {
+  // 세미나를 제외한 운영진용 카테고리 권한
+  category: Exclude<ReservationCategory, typeof ReservationCategory.SEMINAR>;
+  location: "405" | "407-1" | "410" | "외부";         // 외부 포함 전체 장소 선택 가능
+  expoint: number;                                    // 경험치 로직 포함
+};
+
+/** 3. 세미나용 (POST /schedules/big-seminar) */
+export type CreateSeminarScheduleRequest = BaseCreateScheduleRequest & {
+  category: typeof ReservationCategory.SEMINAR;       // "SEMINAR" 고정
+  location: "405" | "407-1" | "410" | "외부";         // 외부 포함
+  expoint: number;                                    // 경험치 로직 포함
+  isSummerSeason: boolean;                            // 빅세미나 추가 필드
+  isSpeakAfter: boolean;                              // 빅세미나 추가 필드
+};
+
+
+/* ==========================================================================
+   🛠️ 관리자 피드백 기반: 일정 수정 요청 DTO (카테고리 변경 분리)
+   ========================================================================== */
+
+/** * [수정] 1. 일반 회원용 (PATCH /schedules/group-activity/{scheduleId}) 
+ * - 카테고리는 GROUP_ACTIVITY 고정이므로 수정 항목에서 제외 (Omit)
+ */
+export type UpdateGroupActivityRequest = Partial<Omit<CreateGroupActivityRequest, 'category'>>;
+
+/** * [수정] 2. 운영진용 (PATCH /schedules/{scheduleId}) 
+ * - 카테고리 변경은 별도 API를 사용하므로 수정 항목에서 제외
+ */
+export type UpdateAdminScheduleRequest = Partial<Omit<CreateAdminScheduleRequest, 'category'>>;
+
+/** * [수정] 3. 세미나용 (PATCH /schedules/big-seminar/{scheduleId}) 
+ * - 세미나 관련 추가 필드(isSummerSeason 등) 수정 가능
+ */
+export type UpdateSeminarScheduleRequest = Partial<Omit<CreateSeminarScheduleRequest, 'category'>>;
+
+/** * [카테고리 변경 전용] (PATCH /schedules/{scheduleId}/category) 
+ * - 운영진 권한 필요
+ * - 타 카테고리에서 '세미나'로 변경될 경우를 대비해 세미나 전용 필드를 Optional(?)로 받음
+ */
+export type UpdateScheduleCategoryRequest = {
+  category: ReservationCategory;
+  isSummerSeason?: boolean;
+  isSpeakAfter?: boolean;
+};
+
+
+/* ==========================================================================
+   조회 (기존 유지)
+   ========================================================================== */
 
 /** GET /schedules 쿼리 파라미터 */
 export type GetSchedulesParams = {

@@ -1,17 +1,19 @@
-.container {
-  display: block;
-  width: 100%;
-}
+/* src/features/manage/RoomReservation/RoomReservationContainer.module.css */
 
-.full-width-wrapper {
+.container {
+  display: grid;
+  grid-template-columns: 1fr 380px; /* 좌측 캘린더 넓게, 우측 등록 폼 380px 고정 */
+  gap: 24px;
   width: 100%;
   margin-top: 16px;
+  align-items: start;
 }
-
 
 /* 페이지 헤더 */
 .page-header {
-  margin-bottom: 4px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #00a0e9;
 }
 
 .page-title {
@@ -27,13 +29,271 @@
   margin-top: 4px;
 }
 
-/* 반응형 */
-@media screen and (max-width: 960px) {
+/* 좌측 캘린더 패널 */
+.left-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.calendar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.calendar-nav button {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.calendar-nav button:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* 7일 주간 가로 그리드 */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+}
+
+.calendar-day-col {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.calendar-day-col:hover {
+  border-color: #00a0e9;
+  background: #f0f9ff;
+}
+
+.today-highlight {
+  border: 2px solid #00a0e9 !important;
+  background: #f0f9ff;
+}
+
+.day-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.day-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* 일정 블록 스타일 */
+.day-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.no-event {
+  font-size: 11px;
+  color: #cbd5e1;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.event-block {
+  background: #00a0e9;
+  color: #ffffff;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.event-block[data-category="SEMINAR"] {
+  background: #0f172a; /* 세미나는 중후한 차콜블랙 포인트 */
+}
+
+.event-block[data-category="AFTERPARTY"] {
+  background: #f59e0b; /* 뒤풀이는 주황색 포인트 */
+}
+
+.event-time {
+  font-weight: 700;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.event-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-loc {
+  font-size: 10px;
+  opacity: 0.85;
+  margin-top: 1px;
+}
+
+/* 우측 폼 패널 */
+.right-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 20px;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field input[type="date"],
+.form-field input[type="time"],
+.form-field select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #334155;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #00a0e9;
+}
+
+.time-range-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.toggle-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #00a0e9;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #00a0e9;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background-color 0.15s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #008ccb;
+}
+
+.submit-btn:disabled {
+  background-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.loading-box {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* 반응형 대응 */
+@media screen and (max-width: 1100px) {
   .container {
     grid-template-columns: 1fr;
   }
-
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr); /* 패블릿 사이즈에선 4열 배치 */
+  }
   .right-panel {
     position: static;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr); /* 모바일에선 2열 배치 */
   }
 }
