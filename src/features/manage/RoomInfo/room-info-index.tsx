@@ -1,4 +1,4 @@
-import RoomInfoContainer from "../../features/manage/RoomReservation/RoomInfoContainer";
+import RoomInfoContainer from './RoomInfoContainer';
 
 export default function RoomInfoPage() {
   return <RoomInfoContainer />;

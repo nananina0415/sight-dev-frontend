@@ -1,4 +1,4 @@
-import RoomReservationContainer from "../../features/manage/RoomReservation/RoomReservationContainer";
+import RoomReservationContainer from "./RoomReservationContainer";
 
 export default function RoomReservationPage() {
   return <RoomReservationContainer />;
