@@ -3,6 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import { useIsManager } from "../../../hooks/user/useIsManager";
+
+
 
 import * as RoomReservationApi from "../../../api/manage/roomReservation";
 import {
@@ -63,6 +66,7 @@ const DAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"];
 type Props = {
   pageTitle?: string;
   pageSubtitle?: string;
+  isManager?: boolean; // 추가
 };
 
 /* ── 컴포넌트 ─────────────────────────────────── */
@@ -70,6 +74,7 @@ type Props = {
 export default function RoomReservationContainer({
   pageTitle = "동아리실 일정 관리",
   pageSubtitle = "일정 및 대관 내역을 등록할 수 있습니다.",
+  isManager = false,
 }: Props) {
   const queryClient = useQueryClient();
 
@@ -414,14 +419,22 @@ export default function RoomReservationContainer({
             </>
           )}
 
-          <button
-            type="button"
-            className={styles["submit-btn"]}
-            disabled={!canSubmit || isSubmitting}
-            onClick={handleSubmit}
-          >
-            {isSubmitting ? "등록 중..." : "일정 등록"}
-          </button>
+          {/* ── 제출 버튼 및 권한 체크 ── */}
+          {isManager ? (
+            <button
+              type="button"
+              className={styles["submit-btn"]}
+              disabled={!canSubmit || isSubmitting}
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "등록 중..." : "일정 등록"}
+            </button>
+          ) : (
+            <div className={styles["permission-message"]}>
+              일정 등록은 운영진만 가능합니다.
+            </div>
+          )}
+
         </div>
       </div>
     </>
