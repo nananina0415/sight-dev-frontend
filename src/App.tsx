@@ -78,7 +78,7 @@ function App() {
             </Suspense>
           }
         />
-        <Route path="/door-lock" element={<DoorLockPage />} />
+        
       </Route>,
     ),
     {
