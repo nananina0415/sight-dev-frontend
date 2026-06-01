@@ -89,7 +89,8 @@ export default function RoomReservationContainer({
   const [location, setLocation] = useState<RoomOption>("405");
 
   /* 대분류 */
-  const [scheduleType, setScheduleType] = useState<ScheduleType>("ADMIN");
+  const [scheduleType, setScheduleType] = useState<ScheduleType>(
+  isManager ? "ADMIN" : "GROUP_ACTIVITY");
 
   /* 운영진 전용 */
   const [adminCategory, setAdminCategory] = useState<string>(ReservationCategory.CLUB);
@@ -332,27 +333,36 @@ export default function RoomReservationContainer({
             </select>
           </div>
 
-          {/* 일정 종류 */}
+          {/* 일정 종류 */}          
           <div className={styles["form-field"]}>
             <label className={styles["form-field__label"]}>
               일정 종류 <span style={{ color: "#ef4444" }}>*</span>
             </label>
-            <select
-              value={scheduleType}
-              onChange={(e) => {
-                const t = e.target.value as ScheduleType;
-                setScheduleType(t);
-                if (t === "GROUP_ACTIVITY" && location === "외부") setLocation("405");
-              }}
-            >
-              {(["GROUP_ACTIVITY", "ADMIN", "SEMINAR"] as ScheduleType[]).map((t) => (
-                <option key={t} value={t}>{SCHEDULE_TYPE_LABELS[t]}</option>
-              ))}
-            </select>
+            {isManager ? (
+              <select
+                value={scheduleType}
+                onChange={(e) => {
+                  const t = e.target.value as ScheduleType;
+                  setScheduleType(t);
+                  if (t === "GROUP_ACTIVITY" && location === "외부") {setLocation("405");        }
+                }}
+              >
+                {(["GROUP_ACTIVITY", "ADMIN", "SEMINAR"] as ScheduleType[]).map((t) => (
+                   <option key={t} value={t}>
+                 {SCHEDULE_TYPE_LABELS[t]}
+                 </option>
+                ))}
+              </select>
+                   ) : (
+               <div className={styles["fixed-value"]}>
+               {SCHEDULE_TYPE_LABELS.GROUP_ACTIVITY}
+             </div>
+            )}
           </div>
 
           {/* 운영진 이상 확장 필드 */}
-          {(scheduleType === "ADMIN" || scheduleType === "SEMINAR") && (
+          {isManager &&
+             (scheduleType === "ADMIN" || scheduleType === "SEMINAR") && (
             <>
               <div className={styles["form-field"]}>
                 <label className={styles["form-field__label"]}>세부 카테고리</label>
@@ -392,7 +402,7 @@ export default function RoomReservationContainer({
           )}
 
           {/* 세미나 전용 추가 필드 */}
-          {scheduleType === "SEMINAR" && (
+          {isManager && scheduleType === "SEMINAR" && (
             <>
               <div className={styles["form-field"]}>
                 <label className={styles["toggle-label"]}>
@@ -420,20 +430,14 @@ export default function RoomReservationContainer({
           )}
 
           {/* ── 제출 버튼 및 권한 체크 ── */}
-          {isManager ? (
-            <button
-              type="button"
+          <button
+             type="button"
               className={styles["submit-btn"]}
               disabled={!canSubmit || isSubmitting}
               onClick={handleSubmit}
             >
-              {isSubmitting ? "등록 중..." : "일정 등록"}
-            </button>
-          ) : (
-            <div className={styles["permission-message"]}>
-              일정 등록은 운영진만 가능합니다.
-            </div>
-          )}
+           {isSubmitting ? "등록 중..." : "일정 등록"}
+          </button>
 
         </div>
       </div>
