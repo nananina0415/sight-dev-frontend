@@ -1,9 +1,9 @@
-import RoomReservationContainer from "../../../features/manage/RoomReservation/RoomReservationContainer";
-import SightLayout from "../../../layouts/SightLayout";
-import Location from "../../../components/Location";
+import RoomReservationContainer from "../../features/manage/RoomReservation/RoomReservationContainer";
+import SightLayout from "../../layouts/SightLayout";
+import Location from "../../components/Location";
 
 import styles from "./style.module.css";
-import { useIsManager } from "../../../hooks/user/useIsManager";
+import { useIsManager } from "../../hooks/user/useIsManager";
 
 export default function RoomReservationPage() {
   const { isManager } = useIsManager();

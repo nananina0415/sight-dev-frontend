@@ -1,6 +1,6 @@
-import RoomInfoContainer from "../../../features/manage/RoomInfo/RoomInfoContainer";
-import SightLayout from "../../../layouts/SightLayout";
-import Location from "../../../components/Location";
+import RoomInfoContainer from "../../features/manage/RoomInfo/RoomInfoContainer";
+import SightLayout from "../../layouts/SightLayout";
+import Location from "../../components/Location";
 
 import styles from "./style.module.css";
 

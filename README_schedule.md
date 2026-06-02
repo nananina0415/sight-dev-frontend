@@ -14,17 +14,35 @@
 - 방: 401~411호 전체 조회 가능 (roomData.ts 기준)
 
 ### 2️⃣ 일정 추가 페이지 (`/manage/room-reservation`)
-**편집 모드** - 일정 등록 가능
+권한에 따라 사용 가능한 기능이 달라지는 일정 등록 페이지
+
+
+**일반 회원 (isManager = false)**
+**기능:**
+- 일반 그룹 활동 일정 생성 가능
+- 일정 종류는 "일반 그룹 활동"으로 고정
+- 제목 / 날짜 / 시간 / 호실 입력 가능
+- 운영진 전용 필드 비노출
+- 세미나 전용 필드 비노출
+- 등록 버튼 사용 가능
+
+**운영진 (isManager = true)**
 
 **기능:**
-- 날짜 선택 (인라인 캘린더, dayjs 기반)
-- 제목 입력
-- 시간 선택: 시작 시간 ~ 종료 시간 (30분 단위)
-- 호실 선택: 405호 / 407-1호 / 410호 / 외부 (일정 종류에 따라 외부 노출 여부 다름)
-- **일정 종류 3단계 계단식 폼:**
-  1. 일반 그룹 활동 → 추가 필드 없음, 호실은 405/407-1/410만 선택 가능
-  2. 운영진 일반 일정 → 세부 카테고리 + 경험치 + 출석 체크 코드 토글
-  3. 빅세미나 / 총회 → 운영진 필드 포함 + 계절학기 여부 + 뒷풀이 발표 여부
+
+- 모든 일정 종류 생성 가능
+일반 그룹 활동
+운영진 일반 일정
+빅세미나 / 총회
+- 일정 종류 선택 가능
+- 운영진 전용 필드 사용 가능
+- 세부 카테고리
+- 경험치(ExPoint)
+- 출석 체크 코드 자동 생성(수정 예정)
+- 세미나 선택 시 추가 필드 사용 가능
+- 계절학기 세미나 여부
+- 뒷풀이 발표 여부
+
 
 ## API 규약
 
@@ -47,7 +65,15 @@ GET /schedules?from=<ISO8601>&limit=<number>
 ```
 
 ### POST /schedules/group-activity
-일반 그룹 활동 일정 등록 (일반 회원용)
+일반 그룹 활동 일정 등록
+
+사용 권한:
+- 일반 회원
+- 운영진
+
+비고:
+- 일반 회원은 해당 유형만 생성 가능
+- 운영진은 일정 종류 선택을 통해 생성 가능
 
 ```
 요청:
@@ -325,11 +351,20 @@ import RoomReservationPage from "./pages/manage/room-reservation";
 ## 주요 컴포넌트별 역할
 
 ### RoomReservationContainer.tsx
-- 날짜 캘린더, 제목/시간/호실 공통 필드
-- 일정 종류 탭 (GROUP_ACTIVITY / ADMIN / SEMINAR) 선택에 따른 계단식 폼 확장
-- 종류별 API 분기 호출 (TanStack Query useMutation)
+
+- 날짜 캘린더 및 주간 일정 조회
+- 제목 / 시간 / 호실 공통 입력 필드
+- 사용자 권한(isManager)에 따른 UI 분기
+- 일반 회원
+  - GROUP_ACTIVITY 일정만 생성 가능
+  - 일정 종류 선택 UI 비노출
+- 운영진
+  - GROUP_ACTIVITY / ADMIN / SEMINAR 생성 가능
+  - 일정 종류 선택 UI 제공
+  - 운영진 전용 필드 및 세미나 전용 필드 노출
+- 일정 유형별 API 자동 분기 호출 (TanStack Query useMutation)
 - 출석 체크 코드 생성은 쿼리스트링 `generateCheckCode=true`로 전달
-- 토스트 알림 (react-toastify)
+- 등록 완료/실패 토스트 알림 (react-toastify)
 
 ### RoomInfoContainer.tsx
 - 전체 일정 `GET /schedules` 조회 후 선택 방 기준 프론트 필터링
@@ -353,8 +388,5 @@ import RoomReservationPage from "./pages/manage/room-reservation";
 
 ## 추후 확장 계획
 
-1. **일정 수정/삭제 UI** — ScheduleDetailModal에 버튼 추가 (API 함수는 구현 완료)
-2. **카테고리 변경 UI** — `PATCH /schedules/:id/category` 연동
-3. **출석 체크 UI** — 중복 출석 409 에러 핸들링 포함 (API 함수는 구현 완료)
-4. **GET /active-schedules 연동** — 현재 진행 중 일정 조회 UI
-5. **포인트 시스템** — expoint 자동 부여 연동
+1. UI쪽 캘린더 버전으로
+2. 
