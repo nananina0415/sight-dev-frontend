@@ -23,6 +23,7 @@ import BookDetailPage from "./pages/book/detail";
 import BookManagePage from "./pages/manage/book";
 import RoomInfoPage from "./pages/room-info";
 import RoomReservationPage from "./pages/room-reservation";
+import SchedulePage from "./pages/schedule";
 // QR/바코드 라이브러리가 용량이 커거 지연 로딩 적용
 const BookScanPage = lazy(() => import("./pages/member/book/scan"));
 const ManageAttendancePage = lazy(() => import("./pages/manage/attendance"));
@@ -60,6 +61,7 @@ function App() {
         <Route path="/manage/book" element={<BookManagePage />} />
         <Route path="/room-info" element={<RoomInfoPage />} />
         <Route path="/manage/room-reservation" element={<RoomReservationPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
         <Route
           path="/manage/attendance"
           element={
