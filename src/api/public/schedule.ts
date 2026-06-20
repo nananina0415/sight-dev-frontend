@@ -16,6 +16,19 @@ export type ScheduleDto = {
   category: ScheduleCategory | null;
 };
 
+export type ScheduleListItemDto = {
+  id: number;
+  title: string;
+  category: string;
+  location: string | null;
+  state: string;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  author: number;
+  groupId: number | null;
+};
+
 export type ListSchedulesRequestDto = {
   from?: string; // ISO 8601 datetime (기본값: 현재 시각)
   limit?: number; // 기본값: 5, 최대: 50
@@ -23,7 +36,28 @@ export type ListSchedulesRequestDto = {
 
 export type ListSchedulesResponseDto = {
   count: number;
-  schedules: ScheduleDto[];
+  schedules: ScheduleListItemDto[];
+};
+
+export type GetScheduleResponseDto = {
+  id: number;
+  title: string;
+  category: string;
+  location: string | null;
+  state: string;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  checkCode: string | null; // 운영진에게만 노출
+  author: number;
+  authorName: string | null;
+  groupId: number | null;
+  groupTitle: string | null;
+  createdAt: string;
+  updatedAt: string;
+  // SEMINAR 카테고리에 한해 포함
+  isSummerSeason?: boolean;
+  isSpeakAfter?: boolean;
 };
 
 // API functions
@@ -54,7 +88,13 @@ const listUpcomingSchedules = async (
   return listSchedules({ limit });
 };
 
+const getSchedule = async (scheduleId: number): Promise<GetScheduleResponseDto> => {
+  const response = await apiV2Client.get<GetScheduleResponseDto>(`/schedules/${scheduleId}`);
+  return response.data;
+};
+
 export const SchedulePublicApi = {
   listSchedules,
   listUpcomingSchedules,
+  getSchedule,
 };
