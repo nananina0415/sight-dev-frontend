@@ -1,4 +1,4 @@
-import type { ScheduleDto, ScheduleCategory } from "../../../api/public/schedule";
+import type { ScheduleListItemDto } from "../../../api/public/schedule";
 import { Box, Text, Badge } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
@@ -10,25 +10,29 @@ dayjs.extend(isTomorrow);
 dayjs.locale("ko");
 
 type Props = {
-  schedule: ScheduleDto;
+  schedule: ScheduleListItemDto;
 };
 
-const scheduleCategoryLabels: Record<ScheduleCategory, string> = {
-  ROOM_405: "405호",
-  ROOM_406: "406호",
-  ROOM_410: "410호",
+const CATEGORY_LABEL: Record<string, string> = {
   CLUB: "동아리",
   ACADEMIC: "학사",
   EXTERNAL: "외부",
+  MANAGEMENT: "운영",
+  GROUP_ACTIVITY: "그룹활동",
+  SEMINAR: "세미나",
+  AFTERPARTY: "뒷풀이",
+  OTHER: "기타",
 };
 
-const scheduleCategoryColors: Record<ScheduleCategory, string> = {
-  ROOM_405: "blue",
-  ROOM_406: "green",
-  ROOM_410: "purple",
+const CATEGORY_COLOR: Record<string, string> = {
   CLUB: "orange",
   ACADEMIC: "red",
   EXTERNAL: "gray",
+  MANAGEMENT: "purple",
+  GROUP_ACTIVITY: "green",
+  SEMINAR: "blue",
+  AFTERPARTY: "pink",
+  OTHER: "gray",
 };
 
 const getRelativeDate = (dateTime: dayjs.Dayjs): string => {
@@ -38,15 +42,11 @@ const getRelativeDate = (dateTime: dayjs.Dayjs): string => {
 };
 
 export default function ScheduleItem({ schedule }: Props) {
-  const dateTime = dayjs(schedule.startTime);
+  const dateTime = dayjs(schedule.scheduledAt);
   const relativeDate = getRelativeDate(dateTime);
   const time = dateTime.format("HH:mm");
-  const categoryLabel = schedule.category
-    ? scheduleCategoryLabels[schedule.category]
-    : "기타";
-  const categoryColor = schedule.category
-    ? scheduleCategoryColors[schedule.category]
-    : "gray";
+  const categoryLabel = CATEGORY_LABEL[schedule.category] ?? "기타";
+  const categoryColor = CATEGORY_COLOR[schedule.category] ?? "gray";
 
   return (
     <Box

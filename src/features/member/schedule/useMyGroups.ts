@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { GroupPublicApi } from "../../api/public/group";
+import { GroupPublicApi } from "../../../api/public/group";
 
 export const useMyGroups = () => {
   return useQuery({
