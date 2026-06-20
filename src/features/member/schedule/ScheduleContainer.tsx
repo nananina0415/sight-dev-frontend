@@ -5,7 +5,7 @@ import WeeklySchedule, { type ScheduleItem } from "./WeeklySchedule";
 import ScheduleFilter from "./ScheduleFilter";
 import ScheduleDetailPopup from "./ScheduleDetailPopup";
 import { getCategoryColor } from "./categoryColors";
-import { useSchedules } from "../../../hooks/schedule/useSchedules";
+import { useSchedules } from "./useSchedules";
 import styles from "./ScheduleContainer.module.css";
 
 const ALL_CATEGORIES = ["CLUB", "ACADEMIC", "EXTERNAL", "MANAGEMENT", "GROUP_ACTIVITY", "SEMINAR", "AFTERPARTY", "OTHER"];

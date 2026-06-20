@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useIsManager } from "../../../hooks/user/useIsManager";
-import { useMyGroups } from "../../../hooks/group/useMyGroups";
+import { useMyGroups } from "./useMyGroups";
 import styles from "./ScheduleForm.module.css";
 
 const MANAGER_CATEGORIES = [
