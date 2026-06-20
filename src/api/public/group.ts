@@ -53,7 +53,13 @@ const listRecentGroups = async (limit: number = 6): Promise<ListGroupsResponseDt
   return listGroups({ joined: true, orderBy: "changedAt", limit });
 };
 
+const getMyGroups = async (): Promise<ListGroupsResponseDto> => {
+  const response = await apiV2Client.get<ListGroupsResponseDto>("/users/@me/groups");
+  return response.data;
+};
+
 export const GroupPublicApi = {
   listGroups,
   listRecentGroups,
+  getMyGroups,
 };
