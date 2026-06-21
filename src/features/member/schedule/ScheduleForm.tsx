@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useIsManager } from "../../../hooks/user/useIsManager";
+import { SchedulePublicApi } from "../../../api/public/schedule";
 import { useMyGroups } from "./useMyGroups";
 import styles from "./ScheduleForm.module.css";
 
@@ -69,38 +70,48 @@ export default function ScheduleForm({
     (!isGroupActivity || groupId !== "") &&
     (!isBigSeminar || (isSummerSeason !== "" && isSpeakAfter !== ""));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    const payload: Record<string, unknown> = {
-      title,
-      category: effectiveCategory,
-      date: anchorDate,
-      startTime,
-      endTime,
-      location: isOther ? customLocation : location,
-    };
-    if (isGroupActivity) {
-      payload.groupId = Number(groupId);
-    }
-    if (isManager && !isGroupActivity) {
-      payload.expoint =
-        expoint !== "" ? Number(expoint) : Number(expointPlaceholder || 0);
-      payload.generateCheckCode = generateCheckCode;
-      if (isBigSeminar) {
-        payload.isSummerSeason = isSummerSeason === "true";
-        payload.isSpeakAfter = isSpeakAfter === "true";
+    const scheduledAt = `${anchorDate}T${startTime}:00`;
+    const endAt = `${anchorDate}T${endTime}:00`;
+    const loc = isOther ? customLocation : location;
+    const exp = expoint !== "" ? Number(expoint) : Number(expointPlaceholder || 0);
+
+    try {
+      if (isGroupActivity) {
+        await SchedulePublicApi.createGroupActivitySchedule({
+          title,
+          location: loc,
+          scheduledAt,
+          endAt,
+          groupId: Number(groupId),
+        });
+      } else if (isBigSeminar) {
+        await SchedulePublicApi.createBigSeminarSchedule({
+          title,
+          location: loc,
+          scheduledAt,
+          endAt,
+          expoint: exp,
+          generateCheckCode,
+          isSummerSeason: isSummerSeason === "true",
+          isSpeakAfter: isSpeakAfter === "true",
+        });
+      } else {
+        await SchedulePublicApi.createSchedule({
+          title,
+          category: effectiveCategory,
+          location: loc,
+          scheduledAt,
+          endAt,
+          expoint: exp,
+          generateCheckCode,
+        });
       }
+      onClose();
+    } catch {
+      alert("일정 등록에 실패했습니다.");
     }
-    const backendCategory = isBigSeminar ? "SEMINAR" : effectiveCategory;
-    payload.category = backendCategory;
-    const endpoint = isGroupActivity
-      ? "POST /schedules/group-activity"
-      : isBigSeminar
-        ? "POST /schedules/big-seminar"
-        : "POST /schedules";
-    // TODO: API 연동
-    console.log(endpoint, payload);
-    onClose();
   };
 
   return (
