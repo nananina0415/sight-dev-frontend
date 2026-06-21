@@ -158,7 +158,7 @@ export default function ScheduleForm({
               onChange={(e) => setGroupId(e.target.value)}
             >
               <option value="">그룹 선택</option>
-              {myGroups.map((g) => (
+              {myGroups.filter((g) => g.state === "PROGRESS").map((g) => (
                 <option key={g.id} value={String(g.id)}>
                   {g.title}
                 </option>

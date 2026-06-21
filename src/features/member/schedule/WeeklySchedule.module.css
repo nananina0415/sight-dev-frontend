@@ -137,8 +137,12 @@
 }
 
 @media screen and (max-width: 767px) {
-  .grid {
-    grid-template-columns: repeat(7, minmax(72px, 1fr));
+  .weekly {
     overflow-x: auto;
+  }
+
+  .grid {
+    grid-template-columns: repeat(7, 72px);
+    min-width: 504px;
   }
 }
