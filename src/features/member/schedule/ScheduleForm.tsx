@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useIsManager } from "../../../hooks/user/useIsManager";
 import { SchedulePublicApi } from "../../../api/public/schedule";
 import { useMyGroups } from "./useMyGroups";
@@ -42,6 +43,7 @@ export default function ScheduleForm({
   onDateChange,
   onClose,
 }: Props) {
+  const queryClient = useQueryClient();
   const { isManager } = useIsManager();
   const { data: myGroups = [] } = useMyGroups();
 
@@ -108,6 +110,7 @@ export default function ScheduleForm({
           generateCheckCode,
         });
       }
+      await queryClient.invalidateQueries({ queryKey: ["schedules"] });
       onClose();
     } catch {
       alert("일정 등록에 실패했습니다.");
