@@ -93,8 +93,46 @@ const getSchedule = async (scheduleId: number): Promise<GetScheduleResponseDto> 
   return response.data;
 };
 
+const createSchedule = async (body: {
+  title: string;
+  category: string;
+  location: string;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  generateCheckCode: boolean;
+}): Promise<void> => {
+  await apiV2Client.post("/schedules", body);
+};
+
+const createGroupActivitySchedule = async (body: {
+  title: string;
+  location: string;
+  scheduledAt: string;
+  endAt: string;
+  groupId: number;
+}): Promise<void> => {
+  await apiV2Client.post("/schedules/group-activity", body);
+};
+
+const createBigSeminarSchedule = async (body: {
+  title: string;
+  location: string;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  generateCheckCode: boolean;
+  isSummerSeason: boolean;
+  isSpeakAfter: boolean;
+}): Promise<void> => {
+  await apiV2Client.post("/schedules/big-seminar", body);
+};
+
 export const SchedulePublicApi = {
   listSchedules,
   listUpcomingSchedules,
   getSchedule,
+  createSchedule,
+  createGroupActivitySchedule,
+  createBigSeminarSchedule,
 };
