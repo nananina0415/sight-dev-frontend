@@ -8,7 +8,7 @@ import { getCategoryColor } from "./categoryColors";
 import { useSchedules } from "./useSchedules";
 import styles from "./ScheduleContainer.module.css";
 
-const ALL_CATEGORIES = ["CLUB", "ACADEMIC", "EXTERNAL", "MANAGEMENT", "GROUP_ACTIVITY", "SEMINAR", "AFTERPARTY", "OTHER"];
+const ALL_CATEGORIES = ["CLUB", "ACADEMIC", "EXTERNAL", "MANAGEMENT", "GROUP_ACTIVITY", "BIG_SEMINAR", "AFTERPARTY", "OTHER"];
 const SELECTABLE_ROOM_IDS = ["405", "406", "410"];
 
 type Props = {

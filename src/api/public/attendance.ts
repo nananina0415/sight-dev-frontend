@@ -31,7 +31,7 @@ const CATEGORY_MAP: Partial<Record<string, Exclude<ScheduleCategory, "일정없�
   EXTERNAL: "외부",
   MANAGEMENT: "운영",
   GROUP_ACTIVITY: "그룹활동",
-  SEMINAR: "세미나",
+  BIG_SEMINAR: "총회",
   AFTERPARTY: "뒷풀이",
   OTHER: "기타",
 };

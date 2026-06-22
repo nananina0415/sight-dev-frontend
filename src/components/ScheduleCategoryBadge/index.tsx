@@ -5,7 +5,7 @@ export type ScheduleCategory =
   | "학사"
   | "외부"
   | "운영"
-  | "세미나"
+  | "총회"
   | "그룹활동"
   | "뒷풀이"
   | "기타"
@@ -23,7 +23,7 @@ const CATEGORY_STYLE: Record<
   운영:   { bg: "#ffffff00", color: "#C9A84C88", border: "2px solid #C9A84C88" },
   외부:   { bg: "#ffffff00", color: "#7c3aed88", border: "2px solid #7c3aed88" },
   일정없음: { bg: "#ffffff00", color: "#9ca3af88", border: "2px solid #9ca3af88" },
-  세미나: { bg: "#ffffff00", color: "#16a34a88", border: "2px solid #16a34a88" },
+  총회: { bg: "#ffffff00", color: "#16a34a88", border: "2px solid #16a34a88" },
 };
 
 type Props = {
