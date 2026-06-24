@@ -128,6 +128,37 @@ const createBigSeminarSchedule = async (body: {
   await apiV2Client.post("/schedules/big-seminar", body);
 };
 
+const updateSchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/${scheduleId}`, body);
+};
+
+const updateGroupActivitySchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/group-activity/${scheduleId}`, body);
+};
+
+const updateBigSeminarSchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  isSummerSeason: boolean;
+  isSpeakAfter: boolean;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/big-seminar/${scheduleId}`, body);
+};
+
 const deleteSchedule = async (scheduleId: number): Promise<void> => {
   await apiV2Client.delete(`/schedules/${scheduleId}`);
 };
@@ -147,6 +178,9 @@ export const SchedulePublicApi = {
   createSchedule,
   createGroupActivitySchedule,
   createBigSeminarSchedule,
+  updateSchedule,
+  updateGroupActivitySchedule,
+  updateBigSeminarSchedule,
   deleteSchedule,
   deleteGroupActivitySchedule,
   deleteBigSeminarSchedule,

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { getCategoryColor } from "./categoryColors";
 import { SchedulePublicApi, type GetScheduleResponseDto } from "../../../api/public/schedule";
 import { useIsManager } from "../../../hooks/user/useIsManager";
+import { useCurrentUser } from "../../../hooks/user/useCurrentUser";
 import type { ScheduleItem } from "./WeeklySchedule";
 import styles from "./ScheduleDetailPopup.module.css";
 
@@ -21,13 +22,20 @@ type Props = {
   schedule: ScheduleItem;
   onClose: () => void;
   onDelete?: () => void;
+  onEdit?: (detail: GetScheduleResponseDto) => void;
 };
 
-export default function ScheduleDetailPopup({ schedule, onClose, onDelete }: Props) {
+export default function ScheduleDetailPopup({ schedule, onClose, onDelete, onEdit }: Props) {
   const color = getCategoryColor(schedule.category);
   const start = dayjs(schedule.scheduledAt);
   const end = dayjs(schedule.endAt);
   const { isManager } = useIsManager();
+  const { data: currentUser } = useCurrentUser();
+
+  const isGroupActivity = schedule.category === "GROUP_ACTIVITY";
+  const isAuthor = currentUser?.id !== undefined && currentUser.id === schedule.author;
+  const canEdit = (isManager && !isGroupActivity) || (isGroupActivity && isAuthor);
+  const canDelete = isManager || (isGroupActivity && isAuthor);
 
   const [detail, setDetail] = useState<GetScheduleResponseDto | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(true);
@@ -125,18 +133,31 @@ export default function ScheduleDetailPopup({ schedule, onClose, onDelete }: Pro
               </>
             )}
           </div>
-          {isManager && (
+          {(canEdit || canDelete) && (
             <div className={styles.footer}>
-              {confirmDelete ? (
-                <>
-                  <button className={styles.cancelBtn} onClick={() => setConfirmDelete(false)} disabled={deleting}>취소</button>
-                  <button className={styles.deleteConfirmBtn} onClick={handleDelete} disabled={deleting}>
-                    {deleting ? "삭제 중..." : "삭제 확인"}
+              <div className={styles.footerLeft}>
+                {canEdit && (
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => detail && onEdit?.(detail)}
+                    disabled={loadingDetail || !detail}
+                  >
+                    수정
                   </button>
-                </>
-              ) : (
-                <button className={styles.deleteBtn} onClick={handleDelete}>삭제</button>
-              )}
+                )}
+              </div>
+              <div className={styles.footerRight}>
+                {canDelete && (confirmDelete ? (
+                  <>
+                    <button className={styles.cancelBtn} onClick={() => setConfirmDelete(false)} disabled={deleting}>취소</button>
+                    <button className={styles.deleteConfirmBtn} onClick={handleDelete} disabled={deleting}>
+                      {deleting ? "삭제 중..." : "삭제 확인"}
+                    </button>
+                  </>
+                ) : (
+                  <button className={styles.deleteBtn} onClick={handleDelete}>삭제</button>
+                ))}
+              </div>
             </div>
           )}
         </div>
