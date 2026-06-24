@@ -37,10 +37,21 @@ type RawGetScheduleResponse = {
 };
 
 export const getMembers = async (): Promise<AttendanceMember[]> => {
-  const res = await apiV2Client.get<{
-    users: { id: number; profile: { name: string; number: number | null } }[];
-  }>("/manager/users", { params: { limit: 200, offset: 0 } });
-  return res.data.users.map((u) => ({
+  type RawUser = { id: number; profile: { name: string; number: number | null } };
+  const limit = 50;
+  let offset = 0;
+  const all: RawUser[] = [];
+
+  while (true) {
+    const res = await apiV2Client.get<{ users: RawUser[] }>("/manager/users", {
+      params: { limit, offset },
+    });
+    all.push(...res.data.users);
+    if (res.data.users.length < limit) break;
+    offset += limit;
+  }
+
+  return all.map((u) => ({
     id: u.id,
     name: u.profile.name,
     number: u.profile.number?.toString() ?? "",
