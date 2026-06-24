@@ -229,6 +229,7 @@ function ManualGrantSection() {
       ]);
       setOriginalAttendees(new Set(selected));
       queryClient.invalidateQueries({ queryKey: ["attendance-history"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-attendees", scheduleId] });
       toast.success("출석이 지급되었습니다.", { autoClose: 1000, hideProgressBar: true });
     } catch {
       toast.error("출석 지급에 실패했습니다.", { autoClose: 2000, hideProgressBar: true });
