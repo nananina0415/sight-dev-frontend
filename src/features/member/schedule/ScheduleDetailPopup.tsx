@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { getCategoryColor } from "./categoryColors";
 import { SchedulePublicApi, type GetScheduleResponseDto } from "../../../api/public/schedule";
+import { useIsManager } from "../../../hooks/user/useIsManager";
 import type { ScheduleItem } from "./WeeklySchedule";
 import styles from "./ScheduleDetailPopup.module.css";
 
@@ -19,15 +20,36 @@ const CATEGORY_LABEL: Record<string, string> = {
 type Props = {
   schedule: ScheduleItem;
   onClose: () => void;
+  onDelete?: () => void;
 };
 
-export default function ScheduleDetailPopup({ schedule, onClose }: Props) {
+export default function ScheduleDetailPopup({ schedule, onClose, onDelete }: Props) {
   const color = getCategoryColor(schedule.category);
   const start = dayjs(schedule.scheduledAt);
   const end = dayjs(schedule.endAt);
+  const { isManager } = useIsManager();
 
   const [detail, setDetail] = useState<GetScheduleResponseDto | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    setDeleting(true);
+    try {
+      if (schedule.category === "BIG_SEMINAR") {
+        await SchedulePublicApi.deleteBigSeminarSchedule(schedule.id);
+      } else if (schedule.category === "GROUP_ACTIVITY") {
+        await SchedulePublicApi.deleteGroupActivitySchedule(schedule.id);
+      } else {
+        await SchedulePublicApi.deleteSchedule(schedule.id);
+      }
+      onDelete?.();
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -103,6 +125,20 @@ export default function ScheduleDetailPopup({ schedule, onClose }: Props) {
               </>
             )}
           </div>
+          {isManager && (
+            <div className={styles.footer}>
+              {confirmDelete ? (
+                <>
+                  <button className={styles.cancelBtn} onClick={() => setConfirmDelete(false)} disabled={deleting}>취소</button>
+                  <button className={styles.deleteConfirmBtn} onClick={handleDelete} disabled={deleting}>
+                    {deleting ? "삭제 중..." : "삭제 확인"}
+                  </button>
+                </>
+              ) : (
+                <button className={styles.deleteBtn} onClick={handleDelete}>삭제</button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

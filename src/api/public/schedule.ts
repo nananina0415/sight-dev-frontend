@@ -128,6 +128,18 @@ const createBigSeminarSchedule = async (body: {
   await apiV2Client.post("/schedules/big-seminar", body);
 };
 
+const deleteSchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/${scheduleId}`);
+};
+
+const deleteGroupActivitySchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/group-activity/${scheduleId}`);
+};
+
+const deleteBigSeminarSchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/big-seminar/${scheduleId}`);
+};
+
 export const SchedulePublicApi = {
   listSchedules,
   listUpcomingSchedules,
@@ -135,4 +147,7 @@ export const SchedulePublicApi = {
   createSchedule,
   createGroupActivitySchedule,
   createBigSeminarSchedule,
+  deleteSchedule,
+  deleteGroupActivitySchedule,
+  deleteBigSeminarSchedule,
 };

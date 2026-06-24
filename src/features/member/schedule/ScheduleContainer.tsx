@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
+import { useQueryClient } from "@tanstack/react-query";
 import MonthlyCalendar from "./MonthlyCalendar";
 import WeeklySchedule, { type ScheduleItem } from "./WeeklySchedule";
 import ScheduleFilter from "./ScheduleFilter";
@@ -18,6 +19,7 @@ type Props = {
 
 export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Props) {
   const weeklyRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(ALL_CATEGORIES));
   const [selectedRooms, setSelectedRooms] = useState<Set<string>>(new Set(SELECTABLE_ROOM_IDS));
   const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
@@ -69,6 +71,10 @@ export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Pr
         <ScheduleDetailPopup
           schedule={selectedSchedule}
           onClose={() => setSelectedSchedule(null)}
+          onDelete={() => {
+            queryClient.invalidateQueries({ queryKey: ["schedules", "monthly"] });
+            setSelectedSchedule(null);
+          }}
         />
       )}
       <div className={styles.container}>
