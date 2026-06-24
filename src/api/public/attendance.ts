@@ -9,6 +9,13 @@ export type AttendanceSchedule = {
   endAt: string | null;
 };
 
+export type HistorySchedule = {
+  id: number;
+  title: string;
+  category: ScheduleCategory | null;
+  scheduledAt: string;
+};
+
 export type CheckAttendanceResult =
   | { status: "success"; expointGranted: number }
   | { status: "already" }
@@ -25,7 +32,7 @@ type RawSchedule = {
   endAt: string | null;
 };
 
-const CATEGORY_MAP: Partial<Record<string, Exclude<ScheduleCategory, "일정없음">>> = {
+export const CATEGORY_MAP: Partial<Record<string, Exclude<ScheduleCategory, "일정없음">>> = {
   CLUB: "동아리",
   ACADEMIC: "학사",
   EXTERNAL: "외부",
@@ -63,6 +70,36 @@ export const getSchedule = async (scheduleId: string): Promise<AttendanceSchedul
   } catch {
     return null;
   }
+};
+
+export const getSchedulesByMonth = async (
+  year: number,
+  month: number
+): Promise<{ id: number; title: string; scheduledAt: string }[]> => {
+  const from = new Date(year, month - 1, 1).toISOString().slice(0, 19);
+  const res = await apiV2Client.get<{ schedules: RawSchedule[] }>("/schedules", {
+    params: { from, limit: 50 },
+  });
+  const end = new Date(year, month, 1).getTime();
+  return res.data.schedules
+    .filter((s) => new Date(s.scheduledAt).getTime() < end)
+    .map((s) => ({ id: s.id, title: s.title, scheduledAt: s.scheduledAt }));
+};
+
+export const getAttendanceHistory = async (year: number): Promise<HistorySchedule[]> => {
+  const from = `${year}-01-01T00:00:00`;
+  const res = await apiV2Client.get<{ schedules: RawSchedule[] }>("/schedules", {
+    params: { from, limit: 50 },
+  });
+  const end = new Date(year + 1, 0, 1).getTime();
+  return res.data.schedules
+    .filter((s) => new Date(s.scheduledAt).getTime() < end)
+    .map((s) => ({
+      id: s.id,
+      title: s.title,
+      category: CATEGORY_MAP[s.category] ?? null,
+      scheduledAt: s.scheduledAt,
+    }));
 };
 
 export const checkAttendance = async (

@@ -9,15 +9,17 @@ import ScheduleCategoryBadge from "../../../components/ScheduleCategoryBadge";
 import {
   getMembers,
   getCurrentAttendanceSchedules,
-  getAttendanceHistory,
-  getSchedulesByMonth,
   getScheduleAttendees,
   addAttendances,
   removeAttendance,
   type AttendanceMember,
   type CurrentSchedule,
-  type HistorySchedule,
 } from "../../../api/manage/attendance";
+import {
+  getAttendanceHistory,
+  getSchedulesByMonth,
+  type HistorySchedule,
+} from "../../../api/public/attendance";
 import styles from "./style.module.css";
 
 // ── QR 팝업 ──────────────────────────────────────────────────────────────────
