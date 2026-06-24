@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box, Flex, Text } from "@chakra-ui/react";
-import { checkAttendance, type CheckAttendanceResult } from "../../api/public/attendance";
+import { checkAttendance, type CheckAttendanceResult } from "../../../api/public/attendance";
 
 type Props = {
   scheduleId: string;

@@ -1,6 +1,6 @@
 import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import SimpleLogoLayout from "../../../../layouts/SimpleLogoLayout";
-import AttendanceResult from "../../../../features/attendance/AttendanceResult";
+import AttendanceResult from "../../../../features/member/attendance/AttendanceResult";
 
 export default function AttendanceResultPage() {
   const { scheduleId } = useParams<{ scheduleId: string }>();
