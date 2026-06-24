@@ -55,7 +55,7 @@ export type GetScheduleResponseDto = {
   groupTitle: string | null;
   createdAt: string;
   updatedAt: string;
-  // SEMINAR 카테고리에 한해 포함
+  // BIG_SEMINAR 카테고리에 한해 포함
   isSummerSeason?: boolean;
   isSpeakAfter?: boolean;
 };

@@ -19,7 +19,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   EXTERNAL: "외부",
   MANAGEMENT: "운영",
   GROUP_ACTIVITY: "그룹활동",
-  SEMINAR: "세미나",
+  BIG_SEMINAR: "총회",
   AFTERPARTY: "뒷풀이",
   OTHER: "기타",
 };
@@ -30,7 +30,7 @@ const CATEGORY_COLOR: Record<string, string> = {
   EXTERNAL: "gray",
   MANAGEMENT: "purple",
   GROUP_ACTIVITY: "green",
-  SEMINAR: "blue",
+  BIG_SEMINAR: "blue",
   AFTERPARTY: "pink",
   OTHER: "gray",
 };

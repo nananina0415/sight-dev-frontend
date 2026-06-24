@@ -5,7 +5,7 @@ export const CATEGORY_COLOR: Record<string, string> = {
   EXTERNAL: "#7c3aed",
   MANAGEMENT: "#C9A84C",
   GROUP_ACTIVITY: "#0077b6",
-  SEMINAR: "#16a34a",
+  BIG_SEMINAR: "#16a34a",
   AFTERPARTY: "#ed64a6",
   OTHER: "#555555",
 };

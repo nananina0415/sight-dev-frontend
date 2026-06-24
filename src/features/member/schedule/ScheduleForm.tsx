@@ -11,7 +11,6 @@ const MANAGER_CATEGORIES = [
   { code: "EXTERNAL", label: "외부" },
   { code: "MANAGEMENT", label: "운영" },
   { code: "GROUP_ACTIVITY", label: "그룹활동" },
-  { code: "SEMINAR", label: "세미나" },
   { code: "BIG_SEMINAR", label: "총회" },
   { code: "AFTERPARTY", label: "뒷풀이" },
   { code: "OTHER", label: "기타" },
@@ -27,7 +26,6 @@ const EXPOINT_DEFAULTS: Record<string, string> = {
   CLUB: "60",
   MANAGEMENT: "60",
   EXTERNAL: "60",
-  SEMINAR: "60",
   BIG_SEMINAR: "80",
   AFTERPARTY: "40",
 };

@@ -8,7 +8,7 @@ const CATEGORIES: { code: string; label: string }[] = [
   { code: "EXTERNAL", label: "외부" },
   { code: "MANAGEMENT", label: "운영" },
   { code: "GROUP_ACTIVITY", label: "그룹활동" },
-  { code: "SEMINAR", label: "세미나" },
+  { code: "BIG_SEMINAR", label: "총회" },
   { code: "AFTERPARTY", label: "뒷풀이" },
   { code: "OTHER", label: "기타" },
 ];
