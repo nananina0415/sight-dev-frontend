@@ -44,7 +44,7 @@ export default function ScheduleFilter({
                 style={
                   isActive
                     ? {
-                        backgroundColor: color + "20",
+                        backgroundColor: color + "10",
                         borderColor: color + "88",
                         color: color + "dd",
                       }
