@@ -26,6 +26,7 @@ export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Pr
   const [selectedRooms, setSelectedRooms] = useState<Set<string>>(new Set(SELECTABLE_ROOM_IDS));
   const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
   const [editScheduleDetail, setEditScheduleDetail] = useState<GetScheduleResponseDto | null>(null);
+  const [editAnchorDate, setEditAnchorDate] = useState("");
 
   const { data: schedules = [], isLoading } = useSchedules(anchorDate);
 
@@ -81,6 +82,7 @@ export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Pr
           onEdit={(detail) => {
             setSelectedSchedule(null);
             setEditScheduleDetail(detail);
+            setEditAnchorDate(dayjs(detail.scheduledAt).format("YYYY-MM-DD"));
           }}
         />
       )}
@@ -88,8 +90,8 @@ export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Pr
         <div className={styles.editOverlay} onClick={() => setEditScheduleDetail(null)}>
           <div className={styles.editPanel} onClick={(e) => e.stopPropagation()}>
             <ScheduleForm
-              anchorDate={dayjs(editScheduleDetail.scheduledAt).format("YYYY-MM-DD")}
-              onDateChange={() => {}}
+              anchorDate={editAnchorDate}
+              onDateChange={setEditAnchorDate}
               editSchedule={editScheduleDetail}
               onClose={() => setEditScheduleDetail(null)}
             />

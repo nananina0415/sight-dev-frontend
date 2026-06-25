@@ -1,8 +1,8 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import SightLayout from "../../../layouts/SightLayout";
-import ScheduleContainer from "../../../features/member/schedule/ScheduleContainer";
-import ScheduleForm from "../../../features/member/schedule/ScheduleForm";
+import ScheduleContainer from "../../../features/member/ScheduleContainer/ScheduleContainer";
+import ScheduleForm from "../../../features/member/ScheduleContainer/ScheduleForm";
 import styles from "./style.module.css";
 
 export default function SchedulePage() {
