@@ -229,6 +229,7 @@ function ManualGrantSection() {
       ]);
       setOriginalAttendees(new Set(selected));
       queryClient.invalidateQueries({ queryKey: ["attendance-history"] });
+      queryClient.invalidateQueries({ queryKey: ["schedule-attendees", scheduleId] });
       toast.success("출석이 지급되었습니다.", { autoClose: 1000, hideProgressBar: true });
     } catch {
       toast.error("출석 지급에 실패했습니다.", { autoClose: 2000, hideProgressBar: true });
@@ -441,10 +442,10 @@ function HistoryCard({
         className={styles["history-card-header"]}
         onClick={handleToggle}
       >
-        {schedule.category && (
-          <ScheduleCategoryBadge category={schedule.category} />
-        )}
         <div className={styles["history-card-meta"]} style={{ flex: 1 }}>
+          {schedule.category && (
+            <ScheduleCategoryBadge category={schedule.category} />
+          )}
           <span className={styles["history-card-title"]}>{schedule.title}</span>
         </div>
         <div className={styles["history-card-right"]}>
@@ -458,6 +459,15 @@ function HistoryCard({
               hour: "2-digit",
               minute: "2-digit",
             })}
+            {schedule.endAt && (
+              <>
+                {" ~ "}
+                {new Date(schedule.endAt).toLocaleTimeString("ko-KR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </>
+            )}
           </span>
           <span className={styles["history-card-count"]}>
             {attendances

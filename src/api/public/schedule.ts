@@ -85,7 +85,8 @@ const listSchedules = async (
 const listUpcomingSchedules = async (
   limit = 5
 ): Promise<ListSchedulesResponseDto> => {
-  return listSchedules({ limit });
+  const from = new Date().toISOString().slice(0, 19);
+  return listSchedules({ from, limit });
 };
 
 const getSchedule = async (scheduleId: number): Promise<GetScheduleResponseDto> => {
@@ -128,6 +129,57 @@ const createBigSeminarSchedule = async (body: {
   await apiV2Client.post("/schedules/big-seminar", body);
 };
 
+const updateSchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/${scheduleId}`, body);
+};
+
+const updateGroupActivitySchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/group-activity/${scheduleId}`, body);
+};
+
+const updateBigSeminarSchedule = async (scheduleId: number, body: {
+  title: string;
+  location: string | null;
+  scheduledAt: string;
+  endAt: string;
+  expoint: number;
+  isSummerSeason: boolean;
+  isSpeakAfter: boolean;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/big-seminar/${scheduleId}`, body);
+};
+
+const updateScheduleCategory = async (scheduleId: number, body: {
+  category: string;
+  isSummerSeason?: boolean;
+  isSpeakAfter?: boolean;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/${scheduleId}/category`, body);
+};
+
+const deleteSchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/${scheduleId}`);
+};
+
+const deleteGroupActivitySchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/group-activity/${scheduleId}`);
+};
+
+const deleteBigSeminarSchedule = async (scheduleId: number): Promise<void> => {
+  await apiV2Client.delete(`/schedules/big-seminar/${scheduleId}`);
+};
+
 export const SchedulePublicApi = {
   listSchedules,
   listUpcomingSchedules,
@@ -135,4 +187,11 @@ export const SchedulePublicApi = {
   createSchedule,
   createGroupActivitySchedule,
   createBigSeminarSchedule,
+  updateSchedule,
+  updateGroupActivitySchedule,
+  updateBigSeminarSchedule,
+  updateScheduleCategory,
+  deleteSchedule,
+  deleteGroupActivitySchedule,
+  deleteBigSeminarSchedule,
 };

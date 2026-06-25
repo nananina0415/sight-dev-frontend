@@ -4,12 +4,12 @@ import styles from "./ScheduleFilter.module.css";
 
 const CATEGORIES: { code: string; label: string }[] = [
   { code: "CLUB", label: "동아리" },
+  { code: "BIG_SEMINAR", label: "총회" },
   { code: "ACADEMIC", label: "학사" },
   { code: "EXTERNAL", label: "외부" },
-  { code: "MANAGEMENT", label: "운영" },
   { code: "GROUP_ACTIVITY", label: "그룹활동" },
-  { code: "BIG_SEMINAR", label: "총회" },
   { code: "AFTERPARTY", label: "뒷풀이" },
+  { code: "MANAGEMENT", label: "운영" },
   { code: "OTHER", label: "기타" },
 ];
 
@@ -43,8 +43,16 @@ export default function ScheduleFilter({
                 className={styles.categoryBtn}
                 style={
                   isActive
-                    ? { backgroundColor: color + "18", borderColor: color, color: color }
-                    : { backgroundColor: "#f1f5f9", borderColor: "#e2e8f0", color: "#94a3b8" }
+                    ? {
+                        backgroundColor: color + "20",
+                        borderColor: color + "88",
+                        color: color + "dd",
+                      }
+                    : {
+                        backgroundColor: "#f1f5f9",
+                        borderColor: "#e2e8f0",
+                        color: "#94a3b8",
+                      }
                 }
                 onClick={() => onCategoryToggle(code)}
               >
@@ -56,7 +64,9 @@ export default function ScheduleFilter({
       </div>
 
       <div className={`${styles.section} ${styles.sectionFloorPlan}`}>
-        <div className={!isGroupActivityActive ? styles.sectionDimmed : undefined}>
+        <div
+          className={!isGroupActivityActive ? styles.sectionDimmed : undefined}
+        >
           <ScheduleFloorPlan
             selectedRoomIds={isGroupActivityActive ? selectedRooms : new Set()}
             onToggleRoom={isGroupActivityActive ? onRoomToggle : () => {}}
@@ -64,7 +74,9 @@ export default function ScheduleFilter({
         </div>
         {!isGroupActivityActive && (
           <div className={styles.floorplanOverlay}>
-            그룹활동 카테고리를 활성화하면<br />장소 필터를 사용할 수 있습니다.
+            그룹활동 카테고리를 활성화하면
+            <br />
+            장소 필터를 사용할 수 있습니다.
           </div>
         )}
       </div>

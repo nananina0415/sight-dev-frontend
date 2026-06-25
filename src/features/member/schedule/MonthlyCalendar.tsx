@@ -105,14 +105,19 @@ export default function MonthlyCalendar({
             >
               <span className={styles.dayNum}>{day.date()}</span>
               {dots.length > 0 && (
-                <span className={styles.dots}>
-                  {dots.slice(0, 3).map((color, idx) => (
-                    <span
-                      key={idx}
-                      className={styles.dot}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
+                <span className={styles.dotsWrapper}>
+                  <span className={styles.dots}>
+                    {dots.slice(0, 3).map((color, idx) => (
+                      <span
+                        key={idx}
+                        className={styles.dot}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </span>
+                  {dots.length > 3 && (
+                    <span className={styles.dotsMore}>+{dots.length - 3}</span>
+                  )}
                 </span>
               )}
             </button>

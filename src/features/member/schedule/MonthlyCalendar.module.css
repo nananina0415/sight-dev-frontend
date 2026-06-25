@@ -115,6 +115,13 @@
   line-height: 1;
 }
 
+.dotsWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
 .dots {
   display: flex;
   gap: 2px;
@@ -127,4 +134,11 @@
   height: 5px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.dotsMore {
+  font-size: 9px;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1;
 }

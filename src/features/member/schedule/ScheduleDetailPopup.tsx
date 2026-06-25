@@ -1,9 +1,23 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { Badge } from "@chakra-ui/react";
 import { getCategoryColor } from "./categoryColors";
 import { SchedulePublicApi, type GetScheduleResponseDto } from "../../../api/public/schedule";
+import { useIsManager } from "../../../hooks/user/useIsManager";
+import { useCurrentUser } from "../../../hooks/user/useCurrentUser";
 import type { ScheduleItem } from "./WeeklySchedule";
 import styles from "./ScheduleDetailPopup.module.css";
+
+const CATEGORY_COLOR: Record<string, string> = {
+  CLUB: "blue",
+  ACADEMIC: "red",
+  EXTERNAL: "purple",
+  MANAGEMENT: "green",
+  GROUP_ACTIVITY: "orange",
+  BIG_SEMINAR: "blue",
+  AFTERPARTY: "yellow",
+  OTHER: "gray",
+};
 
 const CATEGORY_LABEL: Record<string, string> = {
   CLUB: "동아리",
@@ -19,15 +33,43 @@ const CATEGORY_LABEL: Record<string, string> = {
 type Props = {
   schedule: ScheduleItem;
   onClose: () => void;
+  onDelete?: () => void;
+  onEdit?: (detail: GetScheduleResponseDto) => void;
 };
 
-export default function ScheduleDetailPopup({ schedule, onClose }: Props) {
+export default function ScheduleDetailPopup({ schedule, onClose, onDelete, onEdit }: Props) {
   const color = getCategoryColor(schedule.category);
   const start = dayjs(schedule.scheduledAt);
   const end = dayjs(schedule.endAt);
+  const { isManager } = useIsManager();
+  const { data: currentUser } = useCurrentUser();
+
+  const isGroupActivity = schedule.category === "GROUP_ACTIVITY";
+  const isAuthor = currentUser?.id !== undefined && currentUser.id === schedule.author;
+  const canEdit = (isManager && !isGroupActivity) || (isGroupActivity && isAuthor);
+  const canDelete = isManager || (isGroupActivity && isAuthor);
 
   const [detail, setDetail] = useState<GetScheduleResponseDto | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    setDeleting(true);
+    try {
+      if (schedule.category === "BIG_SEMINAR") {
+        await SchedulePublicApi.deleteBigSeminarSchedule(schedule.id);
+      } else if (schedule.category === "GROUP_ACTIVITY") {
+        await SchedulePublicApi.deleteGroupActivitySchedule(schedule.id);
+      } else {
+        await SchedulePublicApi.deleteSchedule(schedule.id);
+      }
+      onDelete?.();
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -48,9 +90,9 @@ export default function ScheduleDetailPopup({ schedule, onClose }: Props) {
         <div className={styles.colorBar} style={{ backgroundColor: color }} />
         <div className={styles.body}>
           <div className={styles.header}>
-            <span className={styles.badge} style={{ backgroundColor: color + "22", color, borderColor: color + "66" }}>
+            <Badge colorPalette={CATEGORY_COLOR[schedule.category] ?? "gray"} size="sm">
               {CATEGORY_LABEL[schedule.category] ?? schedule.category}
-            </span>
+            </Badge>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
           <div className={styles.title}>{schedule.title}</div>
@@ -103,6 +145,33 @@ export default function ScheduleDetailPopup({ schedule, onClose }: Props) {
               </>
             )}
           </div>
+          {(canEdit || canDelete) && (
+            <div className={styles.footer}>
+              <div className={styles.footerLeft}>
+                {canEdit && (
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => detail && onEdit?.(detail)}
+                    disabled={loadingDetail || !detail}
+                  >
+                    수정
+                  </button>
+                )}
+              </div>
+              <div className={styles.footerRight}>
+                {canDelete && (confirmDelete ? (
+                  <>
+                    <button className={styles.cancelBtn} onClick={() => setConfirmDelete(false)} disabled={deleting}>취소</button>
+                    <button className={styles.deleteConfirmBtn} onClick={handleDelete} disabled={deleting}>
+                      {deleting ? "삭제 중..." : "삭제 확인"}
+                    </button>
+                  </>
+                ) : (
+                  <button className={styles.deleteBtn} onClick={handleDelete}>삭제</button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

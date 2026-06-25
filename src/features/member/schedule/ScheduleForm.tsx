@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsManager } from "../../../hooks/user/useIsManager";
-import { SchedulePublicApi } from "../../../api/public/schedule";
+import { SchedulePublicApi, type GetScheduleResponseDto } from "../../../api/public/schedule";
 import { useMyGroups } from "./useMyGroups";
 import styles from "./ScheduleForm.module.css";
 
@@ -34,30 +34,52 @@ type Props = {
   anchorDate: string;
   onDateChange: (date: string) => void;
   onClose: () => void;
+  editSchedule?: GetScheduleResponseDto;
 };
+
+const PRESET_LOCATIONS = ["405", "406", "410"];
+
+function parseLocation(loc: string | null): { location: string; customLocation: string } {
+  if (!loc) return { location: "405", customLocation: "" };
+  if (PRESET_LOCATIONS.includes(loc)) return { location: loc, customLocation: "" };
+  return { location: "기타", customLocation: loc };
+}
+
+function parseTime(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes() === 0 ? 0 : d.getMinutes()).padStart(2, "0")}`;
+}
 
 export default function ScheduleForm({
   anchorDate,
   onDateChange,
   onClose,
+  editSchedule,
 }: Props) {
   const queryClient = useQueryClient();
   const { isManager } = useIsManager();
   const { data: myGroups = [] } = useMyGroups();
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("CLUB");
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
-  const [location, setLocation] = useState("405");
-  const [customLocation, setCustomLocation] = useState("");
-  const [groupId, setGroupId] = useState("");
-  const [expoint, setExpoint] = useState("");
-  const [generateCheckCode, setGenerateCheckCode] = useState(true);
-  const [isSummerSeason, setIsSummerSeason] = useState("");
-  const [isSpeakAfter, setIsSpeakAfter] = useState("");
+  const isEditMode = !!editSchedule;
+  const initialLoc = parseLocation(editSchedule?.location ?? null);
 
-  const effectiveCategory = isManager ? category : "GROUP_ACTIVITY";
+  const [title, setTitle] = useState(() => editSchedule?.title ?? "");
+  const [category, setCategory] = useState(() => editSchedule?.category ?? "CLUB");
+  const [startTime, setStartTime] = useState(() => editSchedule ? parseTime(editSchedule.scheduledAt) : "09:00");
+  const [endTime, setEndTime] = useState(() => editSchedule ? parseTime(editSchedule.endAt) : "10:00");
+  const [location, setLocation] = useState(() => isEditMode ? initialLoc.location : "405");
+  const [customLocation, setCustomLocation] = useState(() => isEditMode ? initialLoc.customLocation : "");
+  const [groupId, setGroupId] = useState("");
+  const [expoint, setExpoint] = useState(() => isEditMode && editSchedule.expoint > 0 ? String(editSchedule.expoint) : "");
+  const [generateCheckCode, setGenerateCheckCode] = useState(true);
+  const [isSummerSeason, setIsSummerSeason] = useState(() =>
+    editSchedule?.isSummerSeason !== undefined ? String(editSchedule.isSummerSeason) : ""
+  );
+  const [isSpeakAfter, setIsSpeakAfter] = useState(() =>
+    editSchedule?.isSpeakAfter !== undefined ? String(editSchedule.isSpeakAfter) : ""
+  );
+
+  const effectiveCategory = isEditMode ? category : (isManager ? category : "GROUP_ACTIVITY");
   const isOther = location === "기타";
   const isBigSeminar = effectiveCategory === "BIG_SEMINAR";
   const isGroupActivity = effectiveCategory === "GROUP_ACTIVITY";
@@ -67,7 +89,7 @@ export default function ScheduleForm({
   const canSubmit =
     title.trim() !== "" &&
     (!isOther || customLocation.trim() !== "") &&
-    (!isGroupActivity || groupId !== "") &&
+    (!isGroupActivity || isEditMode || groupId !== "") &&
     (!isBigSeminar || (isSummerSeason !== "" && isSpeakAfter !== ""));
 
   const handleSubmit = async () => {
@@ -78,40 +100,45 @@ export default function ScheduleForm({
     const exp = expoint !== "" ? Number(expoint) : Number(expointPlaceholder || 0);
 
     try {
-      if (isGroupActivity) {
+      if (isEditMode && editSchedule) {
+        if (category !== editSchedule.category) {
+          await SchedulePublicApi.updateScheduleCategory(editSchedule.id, {
+            category,
+            ...(isBigSeminar ? {
+              isSummerSeason: isSummerSeason === "true",
+              isSpeakAfter: isSpeakAfter === "true",
+            } : {}),
+          });
+        }
+        if (isGroupActivity) {
+          await SchedulePublicApi.updateGroupActivitySchedule(editSchedule.id, { title, location: loc, scheduledAt, endAt });
+        } else if (isBigSeminar) {
+          await SchedulePublicApi.updateBigSeminarSchedule(editSchedule.id, {
+            title, location: loc, scheduledAt, endAt, expoint: exp,
+            isSummerSeason: isSummerSeason === "true",
+            isSpeakAfter: isSpeakAfter === "true",
+          });
+        } else {
+          await SchedulePublicApi.updateSchedule(editSchedule.id, { title, location: loc, scheduledAt, endAt, expoint: exp });
+        }
+      } else if (isGroupActivity) {
         await SchedulePublicApi.createGroupActivitySchedule({
-          title,
-          location: loc,
-          scheduledAt,
-          endAt,
-          groupId: Number(groupId),
+          title, location: loc, scheduledAt, endAt, groupId: Number(groupId),
         });
       } else if (isBigSeminar) {
         await SchedulePublicApi.createBigSeminarSchedule({
-          title,
-          location: loc,
-          scheduledAt,
-          endAt,
-          expoint: exp,
-          generateCheckCode,
-          isSummerSeason: isSummerSeason === "true",
-          isSpeakAfter: isSpeakAfter === "true",
+          title, location: loc, scheduledAt, endAt, expoint: exp,
+          generateCheckCode, isSummerSeason: isSummerSeason === "true", isSpeakAfter: isSpeakAfter === "true",
         });
       } else {
         await SchedulePublicApi.createSchedule({
-          title,
-          category: effectiveCategory,
-          location: loc,
-          scheduledAt,
-          endAt,
-          expoint: exp,
-          generateCheckCode,
+          title, category: effectiveCategory, location: loc, scheduledAt, endAt, expoint: exp, generateCheckCode,
         });
       }
       await queryClient.invalidateQueries({ queryKey: ["schedules"] });
       onClose();
     } catch {
-      alert("일정 등록에 실패했습니다.");
+      alert(isEditMode ? "일정 수정에 실패했습니다." : "일정 등록에 실패했습니다.");
     }
   };
 
@@ -133,7 +160,26 @@ export default function ScheduleForm({
         {/* 카테고리 */}
         <div className={styles.field}>
           <label className={styles.label}>카테고리</label>
-          {isManager ? (
+          {isEditMode && isGroupActivity ? (
+            <div className={styles.fixedValue}>그룹활동</div>
+          ) : isEditMode && isManager ? (
+            <select
+              className={styles.select}
+              value={category}
+              onChange={(e) => {
+                const next = e.target.value;
+                setCategory(next);
+                if (next !== "BIG_SEMINAR") {
+                  setIsSummerSeason("");
+                  setIsSpeakAfter("");
+                }
+              }}
+            >
+              {MANAGER_CATEGORIES.filter((c) => c.code !== "GROUP_ACTIVITY").map(({ code, label }) => (
+                <option key={code} value={code}>{label}</option>
+              ))}
+            </select>
+          ) : isManager ? (
             <select
               className={styles.select}
               value={category}
@@ -158,8 +204,8 @@ export default function ScheduleForm({
           )}
         </div>
 
-        {/* 그룹 선택 (GROUP_ACTIVITY) */}
-        {isGroupActivity && (
+        {/* 그룹 선택 (GROUP_ACTIVITY, 등록 모드만) */}
+        {isGroupActivity && !isEditMode && (
           <div className={styles.field}>
             <label className={styles.label}>
               그룹 <span className={styles.required}>*</span>
@@ -296,8 +342,8 @@ export default function ScheduleForm({
           </div>
         )}
 
-        {/* 출석 코드 생성 (운영진, GROUP_ACTIVITY 제외) */}
-        {isManager && !isGroupActivity && (
+        {/* 출석 코드 생성 (등록 모드, 운영진, GROUP_ACTIVITY 제외) */}
+        {!isEditMode && isManager && !isGroupActivity && (
           <div className={`${styles.field} ${styles.fieldCheckbox}`}>
             <label className={styles.label}>출석 체크</label>
             <label className={styles.toggle}>
@@ -321,7 +367,7 @@ export default function ScheduleForm({
             disabled={!canSubmit}
             onClick={handleSubmit}
           >
-            등록
+            {isEditMode ? "수정" : "등록"}
           </button>
           <button type="button" className={styles.cancelBtn} onClick={onClose}>
             취소

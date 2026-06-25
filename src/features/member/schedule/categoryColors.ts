@@ -1,13 +1,12 @@
-// ScheduleCategoryBadge의 색상과 일치 (영문 카테고리 → 색상)
 export const CATEGORY_COLOR: Record<string, string> = {
-  CLUB: "#1ab1ff",
-  ACADEMIC: "#981E32",
-  EXTERNAL: "#7c3aed",
-  MANAGEMENT: "#C9A84C",
-  GROUP_ACTIVITY: "#0077b6",
-  BIG_SEMINAR: "#16a34a",
-  AFTERPARTY: "#ed64a6",
-  OTHER: "#555555",
+  CLUB: "#2563eb",
+  ACADEMIC: "#dc2626",
+  EXTERNAL: "#9333ea",
+  MANAGEMENT: "#16a34a",
+  GROUP_ACTIVITY: "#ea580c",
+  BIG_SEMINAR: "#2563eb",
+  AFTERPARTY: "#ca8a04",
+  OTHER: "#6b7280",
 };
 
 export function getCategoryColor(category: string): string {

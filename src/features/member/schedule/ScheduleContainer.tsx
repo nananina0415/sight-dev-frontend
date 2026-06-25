@@ -1,11 +1,14 @@
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
+import { useQueryClient } from "@tanstack/react-query";
 import MonthlyCalendar from "./MonthlyCalendar";
 import WeeklySchedule, { type ScheduleItem } from "./WeeklySchedule";
 import ScheduleFilter from "./ScheduleFilter";
 import ScheduleDetailPopup from "./ScheduleDetailPopup";
+import ScheduleForm from "./ScheduleForm";
 import { getCategoryColor } from "./categoryColors";
 import { useSchedules } from "./useSchedules";
+import type { GetScheduleResponseDto } from "../../../api/public/schedule";
 import styles from "./ScheduleContainer.module.css";
 
 const ALL_CATEGORIES = ["CLUB", "ACADEMIC", "EXTERNAL", "MANAGEMENT", "GROUP_ACTIVITY", "BIG_SEMINAR", "AFTERPARTY", "OTHER"];
@@ -18,9 +21,11 @@ type Props = {
 
 export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Props) {
   const weeklyRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(ALL_CATEGORIES));
   const [selectedRooms, setSelectedRooms] = useState<Set<string>>(new Set(SELECTABLE_ROOM_IDS));
   const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
+  const [editScheduleDetail, setEditScheduleDetail] = useState<GetScheduleResponseDto | null>(null);
 
   const { data: schedules = [], isLoading } = useSchedules(anchorDate);
 
@@ -69,7 +74,27 @@ export default function ScheduleContainer({ anchorDate, onAnchorDateChange }: Pr
         <ScheduleDetailPopup
           schedule={selectedSchedule}
           onClose={() => setSelectedSchedule(null)}
+          onDelete={() => {
+            queryClient.invalidateQueries({ queryKey: ["schedules", "monthly"] });
+            setSelectedSchedule(null);
+          }}
+          onEdit={(detail) => {
+            setSelectedSchedule(null);
+            setEditScheduleDetail(detail);
+          }}
         />
+      )}
+      {editScheduleDetail && (
+        <div className={styles.editOverlay} onClick={() => setEditScheduleDetail(null)}>
+          <div className={styles.editPanel} onClick={(e) => e.stopPropagation()}>
+            <ScheduleForm
+              anchorDate={dayjs(editScheduleDetail.scheduledAt).format("YYYY-MM-DD")}
+              onDateChange={() => {}}
+              editSchedule={editScheduleDetail}
+              onClose={() => setEditScheduleDetail(null)}
+            />
+          </div>
+        </div>
       )}
       <div className={styles.container}>
         <div className={styles.calendarPanel}>

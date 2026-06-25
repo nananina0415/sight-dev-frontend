@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Flex, Text, chakra } from "@chakra-ui/react";
-import Button from "../../components/Button";
-import ScheduleCategoryBadge from "../../components/ScheduleCategoryBadge";
-import { getActiveSchedule, type AttendanceSchedule } from "../../api/public/attendance";
+import Button from "../../../components/Button";
+import ScheduleCategoryBadge from "../../../components/ScheduleCategoryBadge";
+import { getActiveSchedule, type AttendanceSchedule } from "../../../api/public/attendance";
 
 export default function AttendanceForm() {
   const [schedule, setSchedule] = useState<AttendanceSchedule | null | "loading">("loading");
