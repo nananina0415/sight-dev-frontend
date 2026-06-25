@@ -61,18 +61,6 @@ function QrModal({
 
 function CurrentAttendanceCard({ schedule }: { schedule: CurrentSchedule }) {
   const [showQr, setShowQr] = useState(false);
-  const [titleWraps, setTitleWraps] = useState(false);
-  const testTitleRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = testTitleRef.current;
-    if (!el) return;
-    const check = () => setTitleWraps(el.scrollWidth > el.clientWidth);
-    check();
-    const ro = new ResizeObserver(check);
-    ro.observe(el.parentElement!);
-    return () => ro.disconnect();
-  }, [schedule.title]);
 
   return (
     <>
@@ -81,17 +69,13 @@ function CurrentAttendanceCard({ schedule }: { schedule: CurrentSchedule }) {
           <div className={styles["current-card-info"]}>
             <ScheduleCategoryBadge category={schedule.category} />
             <div
-              ref={testTitleRef}
               className={styles["current-card-title"]}
-              style={{ visibility: titleWraps ? "hidden" : "visible", fontWeight: 600 }}
+              style={{ fontWeight: 600 }}
             >
               {schedule.title}
             </div>
           </div>
           <div className={styles["current-card-right"]}>
-            <div className={styles["current-card-code"]}>
-              코드: <span>{schedule.checkCode}</span>
-            </div>
             <Button
               bg="brand.50"
               color="brand.500"
@@ -100,13 +84,10 @@ function CurrentAttendanceCard({ schedule }: { schedule: CurrentSchedule }) {
               _hover={{ bg: "brand.100" }}
               onClick={() => setShowQr(true)}
             >
-              QR 생성
+              상세 보기
             </Button>
           </div>
         </div>
-        {titleWraps && (
-          <div style={{ fontWeight: 600 }}>{schedule.title}</div>
-        )}
       </div>
       {showQr && (
         <QrModal schedule={schedule} onClose={() => setShowQr(false)} />
@@ -148,7 +129,9 @@ function ManualGrantSection() {
   const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [originalAttendees, setOriginalAttendees] = useState<Set<number>>(new Set());
+  const [originalAttendees, setOriginalAttendees] = useState<Set<number>>(
+    new Set(),
+  );
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [scheduleId, setScheduleId] = useState<number | "">("");
@@ -177,7 +160,7 @@ function ManualGrantSection() {
 
   useEffect(() => {
     const ids = new Set(
-      (attendances ?? []).filter((a) => a.isChecked).map((a) => a.userId)
+      (attendances ?? []).filter((a) => a.isChecked).map((a) => a.userId),
     );
     setSelected(new Set(ids));
     setOriginalAttendees(new Set(ids));
@@ -221,28 +204,43 @@ function ManualGrantSection() {
     e.preventDefault();
     if (scheduleId === "") return;
     try {
-      const toAdd = Array.from(selected).filter((id) => !originalAttendees.has(id));
-      const toRemove = Array.from(originalAttendees).filter((id) => !selected.has(id));
+      const toAdd = Array.from(selected).filter(
+        (id) => !originalAttendees.has(id),
+      );
+      const toRemove = Array.from(originalAttendees).filter(
+        (id) => !selected.has(id),
+      );
       await Promise.all([
         addAttendances(scheduleId as number, toAdd),
         ...toRemove.map((id) => removeAttendance(scheduleId as number, id)),
       ]);
       setOriginalAttendees(new Set(selected));
       queryClient.invalidateQueries({ queryKey: ["attendance-history"] });
-      queryClient.invalidateQueries({ queryKey: ["schedule-attendees", scheduleId] });
-      toast.success("출석이 지급되었습니다.", { autoClose: 1000, hideProgressBar: true });
+      queryClient.invalidateQueries({
+        queryKey: ["schedule-attendees", scheduleId],
+      });
+      toast.success("출석이 지급되었습니다.", {
+        autoClose: 1000,
+        hideProgressBar: true,
+      });
     } catch {
-      toast.error("출석 지급에 실패했습니다.", { autoClose: 2000, hideProgressBar: true });
+      toast.error("출석 지급에 실패했습니다.", {
+        autoClose: 2000,
+        hideProgressBar: true,
+      });
     }
   };
 
   const currentYear = now.getFullYear();
-  const yearOptions = Array.from({ length: currentYear - 1998 }, (_, i) => 1999 + i);
+  const yearOptions = Array.from(
+    { length: currentYear - 1998 },
+    (_, i) => 1999 + i,
+  );
 
   return (
     <div>
       <Heading as="h3" size="md" className={styles["section-title"]}>
-        수동 출석 체크
+        수동 출석체크
       </Heading>
       <form onSubmit={handleSubmit}>
         <div className={styles["form-row"]}>
@@ -417,7 +415,7 @@ function HistoryCard({
 
   const memberMap = useMemo(
     () => new Map(members.map((m) => [m.id, m.name])),
-    [members]
+    [members],
   );
 
   const checkedNames = useMemo(
@@ -426,7 +424,7 @@ function HistoryCard({
         .filter((a) => a.isChecked)
         .map((a) => memberMap.get(a.userId) ?? `#${a.userId}`)
         .sort((a, b) => a.localeCompare(b, "ko")),
-    [attendances, memberMap]
+    [attendances, memberMap],
   );
 
   const handleToggle = () => {
@@ -438,10 +436,7 @@ function HistoryCard({
 
   return (
     <div className={styles["history-card"]}>
-      <div
-        className={styles["history-card-header"]}
-        onClick={handleToggle}
-      >
+      <div className={styles["history-card-header"]} onClick={handleToggle}>
         <div className={styles["history-card-meta"]} style={{ flex: 1 }}>
           {schedule.category && (
             <ScheduleCategoryBadge category={schedule.category} />
@@ -506,7 +501,10 @@ export default function AttendanceManageContainer() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const [historyYear, setHistoryYear] = useState(currentYear);
-  const yearOptions = Array.from({ length: currentYear - 1998 }, (_, i) => 1999 + i);
+  const yearOptions = Array.from(
+    { length: currentYear - 1998 },
+    (_, i) => 1999 + i,
+  );
 
   const { data: members = [] } = useQuery({
     queryKey: ["attendance-members"],
@@ -520,7 +518,7 @@ export default function AttendanceManageContainer() {
 
   const sorted = [...history].sort(
     (a, b) =>
-      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
   );
 
   return (
