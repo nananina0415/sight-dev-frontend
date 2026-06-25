@@ -4,7 +4,7 @@ import Container from "../../../components/Container";
 import ScheduleItem from "./ScheduleItem";
 
 export default function UpcomingSchedules() {
-  const { data, isLoading, isError } = useUpcomingSchedules(10);
+  const { data, isLoading, isError } = useUpcomingSchedules(5);
 
   return (
     <Container>

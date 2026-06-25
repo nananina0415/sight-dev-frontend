@@ -85,7 +85,8 @@ const listSchedules = async (
 const listUpcomingSchedules = async (
   limit = 5
 ): Promise<ListSchedulesResponseDto> => {
-  return listSchedules({ limit });
+  const from = new Date().toISOString().slice(0, 19);
+  return listSchedules({ from, limit });
 };
 
 const getSchedule = async (scheduleId: number): Promise<GetScheduleResponseDto> => {
@@ -159,6 +160,14 @@ const updateBigSeminarSchedule = async (scheduleId: number, body: {
   await apiV2Client.patch(`/schedules/big-seminar/${scheduleId}`, body);
 };
 
+const updateScheduleCategory = async (scheduleId: number, body: {
+  category: string;
+  isSummerSeason?: boolean;
+  isSpeakAfter?: boolean;
+}): Promise<void> => {
+  await apiV2Client.patch(`/schedules/${scheduleId}/category`, body);
+};
+
 const deleteSchedule = async (scheduleId: number): Promise<void> => {
   await apiV2Client.delete(`/schedules/${scheduleId}`);
 };
@@ -181,6 +190,7 @@ export const SchedulePublicApi = {
   updateSchedule,
   updateGroupActivitySchedule,
   updateBigSeminarSchedule,
+  updateScheduleCategory,
   deleteSchedule,
   deleteGroupActivitySchedule,
   deleteBigSeminarSchedule,

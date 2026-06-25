@@ -101,6 +101,15 @@ export default function ScheduleForm({
 
     try {
       if (isEditMode && editSchedule) {
+        if (category !== editSchedule.category) {
+          await SchedulePublicApi.updateScheduleCategory(editSchedule.id, {
+            category,
+            ...(isBigSeminar ? {
+              isSummerSeason: isSummerSeason === "true",
+              isSpeakAfter: isSpeakAfter === "true",
+            } : {}),
+          });
+        }
         if (isGroupActivity) {
           await SchedulePublicApi.updateGroupActivitySchedule(editSchedule.id, { title, location: loc, scheduledAt, endAt });
         } else if (isBigSeminar) {
@@ -151,10 +160,25 @@ export default function ScheduleForm({
         {/* 카테고리 */}
         <div className={styles.field}>
           <label className={styles.label}>카테고리</label>
-          {isEditMode ? (
-            <div className={styles.fixedValue}>
-              {MANAGER_CATEGORIES.find((c) => c.code === category)?.label ?? category}
-            </div>
+          {isEditMode && isGroupActivity ? (
+            <div className={styles.fixedValue}>그룹활동</div>
+          ) : isEditMode && isManager ? (
+            <select
+              className={styles.select}
+              value={category}
+              onChange={(e) => {
+                const next = e.target.value;
+                setCategory(next);
+                if (next !== "BIG_SEMINAR") {
+                  setIsSummerSeason("");
+                  setIsSpeakAfter("");
+                }
+              }}
+            >
+              {MANAGER_CATEGORIES.filter((c) => c.code !== "GROUP_ACTIVITY").map(({ code, label }) => (
+                <option key={code} value={code}>{label}</option>
+              ))}
+            </select>
           ) : isManager ? (
             <select
               className={styles.select}
