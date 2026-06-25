@@ -442,10 +442,10 @@ function HistoryCard({
         className={styles["history-card-header"]}
         onClick={handleToggle}
       >
-        {schedule.category && (
-          <ScheduleCategoryBadge category={schedule.category} />
-        )}
         <div className={styles["history-card-meta"]} style={{ flex: 1 }}>
+          {schedule.category && (
+            <ScheduleCategoryBadge category={schedule.category} />
+          )}
           <span className={styles["history-card-title"]}>{schedule.title}</span>
         </div>
         <div className={styles["history-card-right"]}>
@@ -459,6 +459,15 @@ function HistoryCard({
               hour: "2-digit",
               minute: "2-digit",
             })}
+            {schedule.endAt && (
+              <>
+                {" ~ "}
+                {new Date(schedule.endAt).toLocaleTimeString("ko-KR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </>
+            )}
           </span>
           <span className={styles["history-card-count"]}>
             {attendances

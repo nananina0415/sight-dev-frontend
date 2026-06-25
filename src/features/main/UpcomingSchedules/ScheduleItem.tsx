@@ -25,13 +25,13 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 const CATEGORY_COLOR: Record<string, string> = {
-  CLUB: "orange",
+  CLUB: "blue",
   ACADEMIC: "red",
-  EXTERNAL: "gray",
-  MANAGEMENT: "purple",
-  GROUP_ACTIVITY: "green",
+  EXTERNAL: "purple",
+  MANAGEMENT: "green",
+  GROUP_ACTIVITY: "orange",
   BIG_SEMINAR: "blue",
-  AFTERPARTY: "pink",
+  AFTERPARTY: "yellow",
   OTHER: "gray",
 };
 

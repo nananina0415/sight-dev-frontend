@@ -1,4 +1,4 @@
-import { chakra } from "@chakra-ui/react";
+import { Badge } from "@chakra-ui/react";
 
 export type ScheduleCategory =
   | "동아리"
@@ -11,19 +11,16 @@ export type ScheduleCategory =
   | "기타"
   | "일정없음";
 
-const CATEGORY_STYLE: Record<
-  ScheduleCategory,
-  { bg: string; color: string; border?: string }
-> = {
-  뒷풀이: { bg: "#ffffff00", color: "#ed64a688", border: "2px solid #ed64a688" },
-  학사:   { bg: "#ffffff00", color: "#981E3288", border: "2px solid #981E3288" },
-  기타:   { bg: "#ffffff00", color: "#22222288", border: "2px solid #22222288" },
-  그룹활동: { bg: "#ffffff00", color: "#0077b688", border: "2px solid #0077b688" },
-  동아리: { bg: "#ffffff00", color: "#1ab1ff88", border: "2px solid #1ab1ff88" },
-  운영:   { bg: "#ffffff00", color: "#C9A84C88", border: "2px solid #C9A84C88" },
-  외부:   { bg: "#ffffff00", color: "#7c3aed88", border: "2px solid #7c3aed88" },
-  일정없음: { bg: "#ffffff00", color: "#9ca3af88", border: "2px solid #9ca3af88" },
-  총회: { bg: "#ffffff00", color: "#16a34a88", border: "2px solid #16a34a88" },
+const CATEGORY_PALETTE: Record<ScheduleCategory, string> = {
+  동아리: "blue",
+  학사: "red",
+  외부: "purple",
+  운영: "green",
+  그룹활동: "orange",
+  총회: "blue",
+  뒷풀이: "yellow",
+  기타: "gray",
+  일정없음: "gray",
 };
 
 type Props = {
@@ -31,21 +28,9 @@ type Props = {
 };
 
 export default function ScheduleCategoryBadge({ category }: Props) {
-  const { bg, color, border } = CATEGORY_STYLE[category];
   return (
-    <chakra.span
-      display="inline-block"
-      alignSelf="flex-start"
-      px="6px"
-      py="1px"
-      borderRadius="full"
-      fontSize="xs"
-      fontWeight="semibold"
-      alignContent="center"
-      style={{ backgroundColor: bg, color, border }}
-      whiteSpace="nowrap"
-    >
+    <Badge colorPalette={CATEGORY_PALETTE[category]} size="sm">
       {category}
-    </chakra.span>
+    </Badge>
   );
 }

@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { Badge } from "@chakra-ui/react";
 import { getCategoryColor } from "./categoryColors";
 import { SchedulePublicApi, type GetScheduleResponseDto } from "../../../api/public/schedule";
 import { useIsManager } from "../../../hooks/user/useIsManager";
 import { useCurrentUser } from "../../../hooks/user/useCurrentUser";
 import type { ScheduleItem } from "./WeeklySchedule";
 import styles from "./ScheduleDetailPopup.module.css";
+
+const CATEGORY_COLOR: Record<string, string> = {
+  CLUB: "blue",
+  ACADEMIC: "red",
+  EXTERNAL: "purple",
+  MANAGEMENT: "green",
+  GROUP_ACTIVITY: "orange",
+  BIG_SEMINAR: "blue",
+  AFTERPARTY: "yellow",
+  OTHER: "gray",
+};
 
 const CATEGORY_LABEL: Record<string, string> = {
   CLUB: "동아리",
@@ -78,9 +90,9 @@ export default function ScheduleDetailPopup({ schedule, onClose, onDelete, onEdi
         <div className={styles.colorBar} style={{ backgroundColor: color }} />
         <div className={styles.body}>
           <div className={styles.header}>
-            <span className={styles.badge} style={{ backgroundColor: color + "22", color, borderColor: color + "66" }}>
+            <Badge colorPalette={CATEGORY_COLOR[schedule.category] ?? "gray"} size="sm">
               {CATEGORY_LABEL[schedule.category] ?? schedule.category}
-            </span>
+            </Badge>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
           <div className={styles.title}>{schedule.title}</div>

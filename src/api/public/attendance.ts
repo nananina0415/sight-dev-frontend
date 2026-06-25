@@ -14,6 +14,7 @@ export type HistorySchedule = {
   title: string;
   category: ScheduleCategory | null;
   scheduledAt: string;
+  endAt: string | null;
 };
 
 export type CheckAttendanceResult =
@@ -99,6 +100,7 @@ export const getAttendanceHistory = async (year: number): Promise<HistorySchedul
       title: s.title,
       category: CATEGORY_MAP[s.category] ?? null,
       scheduledAt: s.scheduledAt,
+      endAt: s.endAt,
     }));
 };
 
