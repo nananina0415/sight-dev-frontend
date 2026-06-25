@@ -1,10 +1,10 @@
 export const CATEGORY_COLOR: Record<string, string> = {
-  CLUB: "#2563eb",
+  CLUB: "#00a0e9",
   ACADEMIC: "#dc2626",
-  EXTERNAL: "#9333ea",
-  MANAGEMENT: "#16a34a",
-  GROUP_ACTIVITY: "#ea580c",
-  BIG_SEMINAR: "#2563eb",
+  EXTERNAL: "#ea33bc",
+  MANAGEMENT: "#9333ea",
+  GROUP_ACTIVITY: "#16a34a",
+  BIG_SEMINAR: "#005a8c",
   AFTERPARTY: "#ca8a04",
   OTHER: "#6b7280",
 };
