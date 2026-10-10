@@ -64,6 +64,15 @@ export const getActiveSchedule = async (): Promise<AttendanceSchedule | null> =>
   }
 };
 
+export const getActiveSchedules = async (): Promise<AttendanceSchedule[]> => {
+  try {
+    const resp = await apiV2Client.get<{ schedules: RawSchedule[] }>("/active-attendances");
+    return resp.data.schedules.map(toAttendanceSchedule);
+  } catch {
+    return [];
+  }
+};
+
 export const getSchedule = async (scheduleId: string): Promise<AttendanceSchedule | null> => {
   try {
     const resp = await apiV2Client.get<RawSchedule>(`/schedules/${scheduleId}`);
@@ -88,20 +97,16 @@ export const getSchedulesByMonth = async (
 };
 
 export const getAttendanceHistory = async (year: number): Promise<HistorySchedule[]> => {
-  const from = `${year}-01-01T00:00:00`;
-  const res = await apiV2Client.get<{ schedules: RawSchedule[] }>("/schedules", {
-    params: { from, limit: 50 },
+  const res = await apiV2Client.get<{ schedules: RawSchedule[] }>("/attendance-history", {
+    params: { year },
   });
-  const end = new Date(year + 1, 0, 1).getTime();
-  return res.data.schedules
-    .filter((s) => new Date(s.scheduledAt).getTime() < end)
-    .map((s) => ({
-      id: s.id,
-      title: s.title,
-      category: CATEGORY_MAP[s.category] ?? null,
-      scheduledAt: s.scheduledAt,
-      endAt: s.endAt,
-    }));
+  return res.data.schedules.map((s) => ({
+    id: s.id,
+    title: s.title,
+    category: CATEGORY_MAP[s.category] ?? null,
+    scheduledAt: s.scheduledAt,
+    endAt: s.endAt,
+  }));
 };
 
 export const checkAttendance = async (
