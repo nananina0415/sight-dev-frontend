@@ -1,0 +1,23 @@
+name: Mirror upstream feature
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# 저장소 정책이 외부 액션을 허용하지 않으므로 git 명령만 사용한다.
+# main은 이 저장소의 기존 내용을 유지하고, 원본 피처 브랜치는 dev에 그대로 덮어쓴다.
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Overwrite dev
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q mirror && cd mirror
+          git fetch -q https://github.com/khu-khlug/sight-frontend.git feat/group-page
+          git push --force "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git" FETCH_HEAD:refs/heads/dev
